@@ -1,0 +1,3565 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>Планировщик заданий</title>
+    
+    <!-- PWA настройки для iOS -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="HW Planner">
+    <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%233b82f6'/%3E%3Ctext x='20' y='70' fill='white' font-size='70'%3E📚%3C/text%3E%3C/svg%3E">
+    
+    <!-- Манифест (встроенный) -->
+    <link rel="manifest" href="data:application/manifest+json,%7B%22name%22%3A%22%D0%9F%D0%BB%D0%B0%D0%BD%D0%B8%D1%80%D0%BE%D0%B2%D1%89%D0%B8%D0%BA%20%D0%B7%D0%B0%D0%B4%D0%B0%D0%BD%D0%B8%D0%B9%22%2C%22short_name%22%3A%22HW%20Planner%22%2C%22description%22%3A%22%D0%9F%D0%BB%D0%B0%D0%BD%D0%B8%D1%80%D0%BE%D0%B2%D1%89%D0%B8%D0%BA%20%D0%B4%D0%BE%D0%BC%D0%B0%D1%88%D0%BD%D0%B8%D1%85%20%D0%B7%D0%B0%D0%B4%D0%B0%D0%BD%D0%B8%D0%B9%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%23ffffff%22%2C%22theme_color%22%3A%22%233b82f6%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22data%3Aimage%2Fsvg%2Bxml%2C%253Csvg%2520xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%2520viewBox%3D'0%25200%2520100%2520100'%253E%253Crect%2520width%3D'100'%2520height%3D'100'%2520fill%3D'%25233b82f6'%2F%253E%253Ctext%2520x%3D'20'%2520y%3D'70'%2520fill%3D'white'%2520font-size%3D'70'%253E%25F0%259F%2593%259A%253C%2Ftext%253E%253C%2Fsvg%253E%22%2C%22sizes%22%3A%22192x192%22%2C%22type%22%3A%22image%2Fsvg%2Bxml%22%7D%5D%7D">
+    <meta name="theme-color" content="#3b82f6">
+    
+    <style>
+        /* все стили такие же, как в предыдущей полной версии */
+        :root {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8fafc;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --border-color: #e2e8f0;
+            --card-bg: #f8fafc;
+            --stat-bg: #eef2ff;
+            --stat-text: #1e3a8a;
+            --button-bg: #ffffff;
+            --button-border: #cbd5e1;
+            --button-text: #1e293b;
+            --overdue: #dc2626;
+            --days-left: #059669;
+            --days-short: #eab308;
+            --calendar-today: #3b82f6;
+            --calendar-has-task: #059669;
+            --calendar-has-overdue: #dc2626;
+            --nav-bg: #ffffff;
+            --nav-height: 70px;
+            --safe-area-bottom: env(safe-area-inset-bottom, 0px);
+            --avatar-size: 44px;
+            --tag-bg: #e2e8f0;
+            --tag-text: #1e293b;
+            --tag-selected-bg: #3b82f6;
+            --tag-selected-text: white;
+            --accent-color: #3b82f6;
+            --font-size-base: 16px;
+            --brightness: 1;
+            --contrast: 1;
+            --animation-duration: 0.5s;
+            --animation-bounce: cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .dark-theme {
+            --bg-primary: #0f172a;
+            --bg-secondary: #1e293b;
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --border-color: #334155;
+            --card-bg: #1e293b;
+            --stat-bg: #2d3a4f;
+            --stat-text: #a5b4fc;
+            --button-bg: #334155;
+            --button-border: #475569;
+            --button-text: #f1f5f9;
+            --overdue: #f87171;
+            --days-left: #4ade80;
+            --days-short: #fbbf24;
+            --calendar-today: #60a5fa;
+            --calendar-has-task: #4ade80;
+            --calendar-has-overdue: #f87171;
+            --nav-bg: #1e293b;
+            --tag-bg: #334155;
+            --tag-text: #e2e8f0;
+        }
+
+        .theme-forest {
+            --bg-primary: #f0f7f0;
+            --bg-secondary: #e2efe2;
+            --text-primary: #1e3a2e;
+            --text-secondary: #2d5a3a;
+            --border-color: #a8d5a8;
+            --card-bg: #e2efe2;
+            --stat-bg: #c8e6c8;
+            --stat-text: #1e5a2e;
+            --button-bg: #ffffff;
+            --button-border: #a8d5a8;
+            --button-text: #1e3a2e;
+            --overdue: #b33c3c;
+            --days-left: #2d7a4d;
+            --days-short: #eab308;
+            --calendar-today: #4caf7a;
+            --calendar-has-task: #2d7a4d;
+            --calendar-has-overdue: #b33c3c;
+            --nav-bg: #e2efe2;
+        }
+
+        .theme-ocean {
+            --bg-primary: #e6f3ff;
+            --bg-secondary: #d4eaff;
+            --text-primary: #003366;
+            --text-secondary: #2a4f7a;
+            --border-color: #99c2ff;
+            --card-bg: #d4eaff;
+            --stat-bg: #b8d9ff;
+            --stat-text: #003d99;
+            --button-bg: #ffffff;
+            --button-border: #99c2ff;
+            --button-text: #003366;
+            --overdue: #cc4d4d;
+            --days-left: #2d7a7a;
+            --days-short: #eab308;
+            --calendar-today: #3399ff;
+            --calendar-has-task: #2d7a7a;
+            --calendar-has-overdue: #cc4d4d;
+            --nav-bg: #d4eaff;
+        }
+
+        .theme-sunset {
+            --bg-primary: #fff2e6;
+            --bg-secondary: #ffe6d4;
+            --text-primary: #662200;
+            --text-secondary: #994d00;
+            --border-color: #ffb380;
+            --card-bg: #ffe6d4;
+            --stat-bg: #ffd4b8;
+            --stat-text: #b34d00;
+            --button-bg: #ffffff;
+            --button-border: #ffb380;
+            --button-text: #662200;
+            --overdue: #cc3333;
+            --days-left: #b36633;
+            --days-short: #eab308;
+            --calendar-today: #ff9933;
+            --calendar-has-task: #b36633;
+            --calendar-has-overdue: #cc3333;
+            --nav-bg: #ffe6d4;
+        }
+
+        .theme-cosmos {
+            --bg-primary: #1a1a2e;
+            --bg-secondary: #16213e;
+            --text-primary: #e6e6ff;
+            --text-secondary: #b3b3ff;
+            --border-color: #4d4d80;
+            --card-bg: #16213e;
+            --stat-bg: #0f3460;
+            --stat-text: #a3c2ff;
+            --button-bg: #2a2a4a;
+            --button-border: #4d4d80;
+            --button-text: #e6e6ff;
+            --overdue: #ff6666;
+            --days-left: #66ccff;
+            --days-short: #eab308;
+            --calendar-today: #7a7aff;
+            --calendar-has-task: #66ccff;
+            --calendar-has-overdue: #ff6666;
+            --nav-bg: #16213e;
+        }
+
+        .accent-green {
+            --accent-color: #22c55e;
+            --calendar-today: #22c55e;
+            --tag-selected-bg: #22c55e;
+        }
+        .accent-purple {
+            --accent-color: #a855f7;
+            --calendar-today: #a855f7;
+            --tag-selected-bg: #a855f7;
+        }
+        .accent-orange {
+            --accent-color: #f97316;
+            --calendar-today: #f97316;
+            --tag-selected-bg: #f97316;
+        }
+        .accent-pink {
+            --accent-color: #ec4899;
+            --calendar-today: #ec4899;
+            --tag-selected-bg: #ec4899;
+        }
+
+        .font-small {
+            --font-size-base: 14px;
+        }
+        .font-large {
+            --font-size-base: 18px;
+        }
+
+        .pattern-stars #app {
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40"><text x="5" y="25" font-size="20" opacity="0.1">⭐</text></svg>');
+            background-repeat: repeat;
+        }
+        .pattern-leaves #app {
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40"><text x="5" y="25" font-size="20" opacity="0.1">🍃</text></svg>');
+            background-repeat: repeat;
+        }
+        .pattern-hearts #app {
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40"><text x="5" y="25" font-size="20" opacity="0.1">❤️</text></svg>');
+            background-repeat: repeat;
+        }
+        .pattern-books #app {
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40"><text x="5" y="25" font-size="20" opacity="0.1">📚</text></svg>');
+            background-repeat: repeat;
+        }
+
+        .brightness-contrast #app {
+            filter: brightness(var(--brightness)) contrast(var(--contrast));
+        }
+
+        * {
+            box-sizing: border-box;
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-size: var(--font-size-base);
+            transition: background-color 0.3s ease, color 0.2s ease;
+        }
+
+        .splash-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: #3b82f6;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            transition: opacity 0.5s ease;
+        }
+
+        .splash-screen.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .splash-icon {
+            font-size: 5rem;
+            animation: bounce 1s ease infinite;
+            margin-bottom: 20px;
+        }
+
+        .splash-title {
+            color: white;
+            font-size: 2rem;
+            font-weight: 600;
+            letter-spacing: 1px;
+            animation: fadeInUp 0.8s ease;
+        }
+
+        .splash-subtitle {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 1rem;
+            margin-top: 8px;
+            animation: fadeInUp 0.8s ease 0.2s both;
+        }
+
+        .splash-progress {
+            margin-top: 40px;
+            width: 200px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .splash-progress-bar {
+            height: 100%;
+            width: 0%;
+            background: white;
+            border-radius: 4px;
+            animation: progress 1.2s ease forwards;
+        }
+
+        #app {
+            max-width: 600px;
+            width: 100%;
+            background: var(--bg-primary);
+            box-shadow: 0 0 20px rgba(0,0,0,0.05);
+            min-height: 100vh;
+            padding: 16px 16px calc(var(--nav-height) + var(--safe-area-bottom)) 16px;
+            border-radius: 0;
+            transition: background-color 0.3s ease, padding-bottom 0.3s ease;
+            position: relative;
+            opacity: 0;
+            animation: appFadeIn 0.6s var(--animation-bounce) 1s forwards;
+            background-repeat: repeat;
+        }
+
+        body.nav-collapsed #app {
+            padding-bottom: calc(var(--safe-area-bottom) + 20px);
+        }
+
+        @media (min-width: 640px) {
+            #app {
+                margin: 20px auto;
+                min-height: auto;
+                border-radius: 24px;
+            }
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes progress {
+            0% { width: 0%; }
+            20% { width: 30%; }
+            50% { width: 70%; }
+            80% { width: 90%; }
+            100% { width: 100%; }
+        }
+
+        @keyframes appFadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+            animation: slideDown 0.4s var(--animation-bounce) both;
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            margin: 0;
+            font-weight: 600;
+            color: var(--text-primary);
+            transition: color 0.2s ease;
+        }
+
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            z-index: 100;
+            background: var(--nav-bg);
+            border-top: 1px solid var(--border-color);
+            padding-bottom: var(--safe-area-bottom);
+            height: calc(var(--nav-height) + var(--safe-area-bottom));
+            box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.05);
+            transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.4s ease, border-radius 0.5s ease, width 0.5s ease, height 0.5s ease;
+            transform-origin: right bottom;
+        }
+
+        .bottom-nav.collapsed {
+            transform: scale(0.6) translate(40%, 40%);
+            opacity: 0;
+            pointer-events: none;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            right: 20px;
+            left: auto;
+            bottom: 20px;
+            background: var(--accent-color);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+
+        .bottom-nav.collapsed .nav-container {
+            display: none;
+        }
+
+        .nav-container {
+            max-width: 600px;
+            width: 100%;
+            height: var(--nav-height);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding: 0 8px;
+        }
+
+        .nav-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            background: none;
+            border: none;
+            padding: 8px 4px;
+            cursor: pointer;
+            color: var(--text-secondary);
+            transition: all 0.3s var(--animation-bounce);
+            border-radius: 12px;
+            touch-action: manipulation;
+        }
+
+        .nav-item.active {
+            color: var(--accent-color);
+            transform: translateY(-4px);
+        }
+
+        .nav-item:active {
+            background: var(--bg-secondary);
+            transform: scale(0.96);
+        }
+
+        .nav-icon {
+            font-size: 1.6rem;
+            line-height: 1;
+        }
+
+        .nav-label {
+            font-size: 0.7rem;
+            font-weight: 500;
+            letter-spacing: 0.3px;
+        }
+
+        .nav-expand-btn {
+            position: fixed;
+            bottom: calc(var(--safe-area-bottom) + 20px);
+            right: 20px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: var(--accent-color);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 101;
+            border: none;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1), background 0.2s ease, opacity 0.4s ease;
+            font-size: 1.5rem;
+            opacity: 0;
+            pointer-events: none;
+            transform: scale(0.5);
+        }
+
+        .nav-expand-btn.visible {
+            opacity: 1;
+            pointer-events: auto;
+            transform: scale(1);
+        }
+
+        .nav-expand-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 16px;
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+            animation: slideUp 0.4s var(--animation-bounce) both;
+        }
+
+        .card:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            transform: translateY(-2px);
+        }
+
+        .item-row {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border-color);
+            gap: 8px;
+            animation: slideIn 0.35s var(--animation-bounce) both;
+            transition: all 0.25s ease;
+            cursor: pointer;
+        }
+
+        .item-row:hover {
+            background: var(--bg-secondary);
+            padding-left: 12px;
+            padding-right: 12px;
+            border-radius: 8px;
+            transform: scale(1.01);
+        }
+
+        .item-row:last-child {
+            border-bottom: none;
+        }
+
+        .item-info {
+            flex: 1 1 auto;
+            min-width: 0;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            word-break: break-word;
+            padding-right: 8px;
+            cursor: pointer;
+        }
+
+        .item-title {
+            font-weight: 600;
+            color: var(--text-primary);
+            white-space: normal;
+            transition: color 0.2s ease;
+        }
+
+        .item-sub {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            white-space: normal;
+        }
+
+        .deadline {
+            font-size: 0.9rem;
+            white-space: normal;
+            margin-right: 8px;
+        }
+
+        .item-actions {
+            flex-shrink: 0;
+            display: flex;
+            gap: 4px;
+            align-items: center;
+        }
+        .item-actions button {
+            cursor: pointer;
+        }
+
+        .overdue {
+            color: var(--overdue);
+            font-weight: 600;
+            animation: pulse 1.5s infinite;
+        }
+
+        .days-left {
+            color: var(--days-left);
+        }
+
+        .days-short {
+            color: var(--days-short);
+            font-weight: 600;
+        }
+
+        button, .file-input-label, .tg-link {
+            background: var(--button-bg);
+            border: 1px solid var(--button-border);
+            border-radius: 30px;
+            padding: 8px 12px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.25s var(--animation-bounce);
+            color: var(--button-text);
+            touch-action: manipulation;
+            white-space: nowrap;
+            display: inline-block;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            text-decoration: none;
+        }
+
+        button::after, .file-input-label::after, .tg-link::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(0, 0, 0, 0.1);
+            transform: translate(-50%, -50%);
+            transition: width 0.5s ease, height 0.5s ease;
+        }
+
+        button:active::after, .file-input-label:active::after, .tg-link:active::after {
+            width: 200px;
+            height: 200px;
+        }
+
+        button:hover:not(:active), .file-input-label:hover, .tg-link:hover {
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        button.primary {
+            background: var(--accent-color);
+            border-color: var(--accent-color);
+            color: white;
+        }
+
+        button.primary::after {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        button.small, .small {
+            padding: 6px 10px;
+            font-size: 0.8rem;
+        }
+
+        button.warning {
+            background: #fee2e2;
+            border-color: #fecaca;
+            color: #b91c1c;
+        }
+
+        .dark-theme button.warning {
+            background: #7f1d1d;
+            border-color: #991b1b;
+            color: #fecaca;
+        }
+
+        button.success {
+            background: #d1fae5;
+            border-color: #a7f3d0;
+            color: #065f46;
+        }
+
+        .dark-theme button.success {
+            background: #064e3b;
+            border-color: #065f46;
+            color: #d1fae5;
+        }
+
+        .difficulty-selector {
+            display: flex;
+            gap: 12px;
+            justify-content: space-around;
+            margin: 10px 0;
+        }
+
+        .difficulty-btn {
+            font-size: 1.8rem;
+            padding: 10px;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--button-bg);
+            border: 2px solid transparent;
+            transition: all 0.25s var(--animation-bounce);
+        }
+
+        .difficulty-btn:hover {
+            transform: scale(1.15) rotate(8deg);
+        }
+
+        .difficulty-btn.selected {
+            border-color: var(--accent-color);
+            background: var(--accent-color);
+            color: white;
+            transform: scale(1.1);
+        }
+
+        .difficulty-badge {
+            font-size: 1.2rem;
+            margin-right: 6px;
+            flex-shrink: 0;
+            transition: transform 0.25s ease;
+        }
+
+        .item-row:hover .difficulty-badge {
+            transform: scale(1.3) rotate(5deg);
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin: 20px 0;
+        }
+
+        input, select, textarea {
+            padding: 14px;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            font-size: 1rem;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            width: 100%;
+            transition: all 0.2s ease;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+            transform: scale(1.02);
+        }
+
+        textarea {
+            resize: vertical;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .stat-item {
+            background: var(--stat-bg);
+            border-radius: 16px;
+            padding: 16px;
+            text-align: center;
+            transition: all 0.3s var(--animation-bounce);
+            animation: scaleIn 0.35s var(--animation-bounce) both;
+        }
+
+        .stat-item:hover {
+            transform: scale(1.07) translateY(-3px);
+            box-shadow: 0 6px 14px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-value {
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: var(--stat-text);
+            line-height: 1.2;
+            transition: color 0.2s ease;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .empty-message {
+            text-align: center;
+            color: var(--text-secondary);
+            padding: 30px 0;
+            font-style: italic;
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.4);
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            animation: fadeIn 0.2s ease-out;
+        }
+
+        .modal {
+            background: var(--bg-primary);
+            border-radius: 24px;
+            padding: 20px;
+            width: 90%;
+            max-width: 400px;
+            max-height: 85vh;
+            overflow-y: auto;
+            animation: slideUpModal 0.35s var(--animation-bounce);
+        }
+
+        .modal h3 {
+            margin-top: 0;
+            color: var(--text-primary);
+        }
+
+        .backup-section {
+            margin-top: 20px;
+            padding: 16px;
+            background: var(--bg-secondary);
+            border-radius: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .file-input-label {
+            cursor: pointer;
+        }
+
+        #backupFile {
+            display: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin: 16px 0;
+        }
+
+        .view-toggle button {
+            flex: 1;
+            background: var(--button-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            padding: 10px;
+            border-radius: 30px;
+            font-weight: 500;
+            transition: all 0.25s var(--animation-bounce);
+        }
+
+        .view-toggle button.active {
+            background: var(--accent-color);
+            border-color: var(--accent-color);
+            color: white;
+            transform: scale(1.03);
+        }
+
+        .calendar-view {
+            display: none;
+        }
+
+        .list-view {
+            display: block;
+        }
+
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            animation: slideDown 0.4s var(--animation-bounce) both;
+        }
+
+        .calendar-month {
+            font-size: 1.3rem;
+            font-weight: 600;
+        }
+
+        .calendar-weekdays {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            text-align: center;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--text-secondary);
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 4px;
+        }
+
+        .calendar-day {
+            aspect-ratio: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 4px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.25s var(--animation-bounce);
+            position: relative;
+        }
+
+        .calendar-day:hover {
+            background: var(--bg-secondary);
+            transform: scale(1.12);
+        }
+
+        .calendar-day.today {
+            border: 2px solid var(--calendar-today);
+            font-weight: 600;
+        }
+
+        .calendar-day.has-tasks::after,
+        .calendar-day.has-overdue::after {
+            content: '';
+            position: absolute;
+            bottom: 4px;
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            animation: pulse 1.5s infinite;
+        }
+
+        .calendar-day.has-tasks::after {
+            background: var(--calendar-has-task);
+        }
+
+        .calendar-day.has-overdue::after {
+            background: var(--calendar-has-overdue);
+        }
+
+        .calendar-day.selected {
+            background: var(--accent-color);
+            color: white;
+            transform: scale(1.1);
+        }
+
+        .calendar-day.other-month {
+            opacity: 0.4;
+        }
+
+        .day-number {
+            font-size: 1rem;
+            transition: transform 0.2s ease;
+        }
+
+        .calendar-day:hover .day-number {
+            transform: scale(1.1);
+        }
+
+        .selected-day-tasks {
+            margin-top: 20px;
+            border-top: 1px solid var(--border-color);
+            padding-top: 16px;
+            animation: slideUp 0.4s var(--animation-bounce) both;
+        }
+        .selected-day-tasks .header-with-export {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .teacher-item {
+            display: flex;
+            flex-direction: column;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border-color);
+            transition: all 0.25s ease;
+            animation: slideIn 0.35s var(--animation-bounce) both;
+            cursor: pointer;
+        }
+
+        .teacher-item:hover {
+            background: var(--bg-secondary);
+            padding-left: 12px;
+            padding-right: 12px;
+            border-radius: 8px;
+            transform: scale(1.01);
+        }
+
+        .teacher-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            width: 100%;
+            gap: 12px;
+        }
+
+        .teacher-info {
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+            flex: 1;
+            min-width: 0;
+        }
+
+        .teacher-avatar {
+            width: var(--avatar-size);
+            height: var(--avatar-size);
+            border-radius: 50%;
+            object-fit: cover;
+            background: var(--bg-secondary);
+            border: 2px solid var(--border-color);
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            transition: all 0.2s ease;
+        }
+
+        .teacher-avatar.emoji-avatar {
+            background: var(--stat-bg);
+            border-color: var(--accent-color);
+        }
+
+        .teacher-avatar.image-avatar {
+            border-color: var(--accent-color);
+        }
+
+        .teacher-details {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .teacher-name {
+            font-weight: 600;
+            font-size: 1.1rem;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            word-break: break-word;
+        }
+
+        .teacher-subjects {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
+
+        .teacher-actions {
+            flex-shrink: 0;
+            display: flex;
+            gap: 4px;
+            align-items: center;
+        }
+
+        .teacher-note {
+            margin-top: 8px;
+            font-size: 0.9rem;
+            color: var(--text-primary);
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            background: var(--bg-secondary);
+            padding: 8px 12px;
+            border-radius: 12px;
+            transition: all 0.2s ease;
+            width: 100%;
+        }
+
+        .teacher-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 8px;
+        }
+
+        .teacher-tag {
+            background: var(--tag-bg);
+            color: var(--tag-text);
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            border: 1px solid var(--border-color);
+        }
+
+        .avatar-options {
+            display: flex;
+            gap: 8px;
+            margin: 16px 0;
+            flex-wrap: wrap;
+        }
+
+        .avatar-option-btn {
+            flex: 1;
+            min-width: 80px;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            background: var(--button-bg);
+            color: var(--button-text);
+            border-radius: 20px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .avatar-option-btn.active {
+            background: var(--accent-color);
+            border-color: var(--accent-color);
+            color: white;
+        }
+
+        .emoji-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 8px;
+            margin: 16px 0;
+            max-height: 200px;
+            overflow-y: auto;
+            padding: 8px;
+            background: var(--bg-secondary);
+            border-radius: 16px;
+        }
+
+        .emoji-btn {
+            aspect-ratio: 1;
+            font-size: 1.8rem;
+            background: var(--button-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 4px;
+        }
+
+        .emoji-btn:hover {
+            transform: scale(1.1);
+            background: var(--accent-color);
+            color: white;
+        }
+
+        .emoji-btn.selected {
+            background: var(--accent-color);
+            border-color: var(--accent-color);
+            color: white;
+        }
+
+        .avatar-preview {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin: 16px 0;
+            padding: 16px;
+            background: var(--bg-secondary);
+            border-radius: 16px;
+        }
+
+        .avatar-preview-img {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--accent-color);
+        }
+
+        .avatar-preview-emoji {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: var(--stat-bg);
+            border: 2px solid var(--accent-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+        }
+
+        .avatar-preview-text {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .file-attachment {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 10px;
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            margin: 4px 0;
+            border: 1px solid var(--border-color);
+            max-width: 100%;
+            overflow: hidden;
+        }
+
+        .file-attachment img.attachment-thumb {
+            width: 30px;
+            height: 30px;
+            object-fit: cover;
+            border-radius: 6px;
+        }
+
+        .file-attachment .attachment-icon {
+            font-size: 1.4rem;
+        }
+
+        .file-attachment .attachment-name {
+            font-size: 0.85rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            flex: 1;
+        }
+
+        .file-attachment .remove-attachment {
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            cursor: pointer;
+            color: var(--text-secondary);
+            padding: 0 4px;
+        }
+
+        .attachments-preview {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin: 8px 0;
+        }
+
+        .attachment-thumbnail {
+            position: relative;
+            width: 60px;
+            height: 60px;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+            cursor: pointer;
+        }
+
+        .attachment-thumbnail img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .attachment-thumbnail .file-icon {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            background: var(--bg-secondary);
+        }
+
+        .attachment-count {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-left: 4px;
+        }
+
+        .file-upload-btn {
+            display: inline-block;
+            padding: 8px 12px;
+            background: var(--button-bg);
+            border: 1px solid var(--button-border);
+            border-radius: 30px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: var(--button-text);
+            text-align: center;
+            margin-bottom: 8px;
+        }
+
+        .file-upload-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        #homeworkFiles {
+            display: none;
+        }
+
+        .message-modal .modal {
+            max-width: 320px;
+            text-align: center;
+        }
+
+        .message-modal p {
+            margin: 16px 0;
+            font-size: 1rem;
+            line-height: 1.4;
+        }
+
+        .message-modal .form-row {
+            justify-content: center;
+        }
+
+        .message-modal button {
+            min-width: 80px;
+        }
+
+        .settings-section {
+            background: var(--bg-secondary);
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+            animation: slideIn 0.35s var(--animation-bounce) both;
+        }
+
+        .settings-section:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            transform: translateY(-2px);
+        }
+
+        .settings-section h3 {
+            margin-top: 0;
+            margin-bottom: 12px;
+            color: var(--text-primary);
+        }
+
+        .theme-toggle-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .archive-toggle-btn {
+            margin-top: 8px;
+            text-align: center;
+        }
+
+        .archive-toggle-btn button {
+            background: var(--button-bg);
+            border: 1px solid var(--button-border);
+            border-radius: 30px;
+            padding: 8px 16px;
+            color: var(--button-text);
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .archive-toggle-btn button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .accordion-item {
+            border-bottom: 1px solid var(--border-color);
+            padding: 8px 0;
+        }
+
+        .accordion-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            padding: 8px 0;
+            user-select: none;
+        }
+
+        .accordion-header h3, .accordion-header h4 {
+            margin: 0;
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .accordion-icon {
+            font-size: 1.2rem;
+            transition: transform 0.3s ease;
+        }
+
+        .accordion-item.open .accordion-icon {
+            transform: rotate(90deg);
+        }
+
+        .accordion-content {
+            display: none;
+            padding: 12px 0 8px 0;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            line-height: 1.5;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .accordion-item.open .accordion-content {
+            display: block;
+        }
+
+        .info-text {
+            margin: 8px 0;
+        }
+
+        .info-text hr {
+            border: none;
+            border-top: 1px solid var(--border-color);
+            margin: 16px 0;
+        }
+
+        .info-text ul {
+            padding-left: 20px;
+            margin: 8px 0;
+        }
+
+        .info-text li {
+            margin: 4px 0;
+        }
+
+        .tags-selector {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin: 12px 0;
+            max-height: 200px;
+            overflow-y: auto;
+            padding: 8px;
+            background: var(--bg-secondary);
+            border-radius: 16px;
+        }
+
+        .tag-btn {
+            background: var(--tag-bg);
+            border: 1px solid var(--border-color);
+            color: var(--tag-text);
+            padding: 6px 12px;
+            border-radius: 30px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .tag-btn.selected {
+            background: var(--tag-selected-bg);
+            border-color: var(--tag-selected-bg);
+            color: var(--tag-selected-text);
+        }
+
+        .tag-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .selected-tags-info {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin: 4px 0 8px;
+        }
+
+        .theme-selector {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin: 8px 0;
+        }
+
+        .theme-option {
+            flex: 1;
+            min-width: 60px;
+            height: 40px;
+            border-radius: 20px;
+            border: 2px solid var(--border-color);
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .theme-option:hover {
+            transform: scale(1.05);
+        }
+
+        .theme-option.active {
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 2px var(--accent-color);
+        }
+
+        .accent-palette {
+            display: flex;
+            gap: 8px;
+            margin: 8px 0;
+        }
+
+        .accent-color {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 2px solid var(--border-color);
+            cursor: pointer;
+        }
+
+        .accent-color.active {
+            border-color: white;
+            box-shadow: 0 0 0 2px var(--accent-color);
+        }
+
+        .slider-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 8px 0;
+        }
+
+        .slider-container input {
+            flex: 1;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes scaleIn {
+            from {
+                opacity: 0;
+                transform: scale(0.8);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            50% {
+                transform: scale(1.2);
+                opacity: 0.7;
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideUpModal {
+            from {
+                opacity: 0;
+                transform: translateY(50px) scale(0.8);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .item-row:nth-child(1) { animation-delay: 0.05s; }
+        .item-row:nth-child(2) { animation-delay: 0.1s; }
+        .item-row:nth-child(3) { animation-delay: 0.15s; }
+        .item-row:nth-child(4) { animation-delay: 0.2s; }
+        .item-row:nth-child(5) { animation-delay: 0.25s; }
+        .item-row:nth-child(6) { animation-delay: 0.3s; }
+        .item-row:nth-child(7) { animation-delay: 0.35s; }
+        .item-row:nth-child(8) { animation-delay: 0.4s; }
+        .item-row:nth-child(9) { animation-delay: 0.45s; }
+        .item-row:nth-child(10) { animation-delay: 0.5s; }
+    </style>
+</head>
+<body>
+    <!-- Загрузочный экран -->
+    <div class="splash-screen" id="splashScreen">
+        <div class="splash-icon">📚</div>
+        <div class="splash-title">HW Planner</div>
+        <div class="splash-subtitle">планировщик заданий</div>
+        <div class="splash-progress">
+            <div class="splash-progress-bar"></div>
+        </div>
+    </div>
+
+    <div id="app">
+        <div class="header">
+            <h1>📚 Планировщик</h1>
+        </div>
+
+        <!-- Вкладки -->
+        <div id="active-tab" class="tab-content active">
+            <div class="card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                    <h3>Мои задания</h3>
+                    <button class="primary small" id="addHomeworkBtn">+ Добавить</button>
+                </div>
+
+                <div class="view-toggle">
+                    <button id="showListView" class="active">📋 Список</button>
+                    <button id="showCalendarView">📅 Календарь</button>
+                </div>
+
+                <div id="listView" class="list-view">
+                    <div id="activeList"></div>
+                </div>
+
+                <div id="calendarView" class="calendar-view">
+                    <div class="calendar-header">
+                        <button class="small" id="prevMonth">←</button>
+                        <span class="calendar-month" id="currentMonth">Март 2025</span>
+                        <button class="small" id="nextMonth">→</button>
+                    </div>
+                    
+                    <div class="calendar-weekdays">
+                        <div>Пн</div><div>Вт</div><div>Ср</div><div>Чт</div><div>Пт</div><div>Сб</div><div>Вс</div>
+                    </div>
+                    
+                    <div id="calendarGrid" class="calendar-grid"></div>
+                    
+                    <div id="selectedDayTasks" class="selected-day-tasks">
+                        <div class="header-with-export">
+                            <h4 id="selectedDateTitle">Задания на день</h4>
+                            <button class="small" id="exportDayBtn" style="display: none;">Сохранить</button>
+                        </div>
+                        <div id="dayTasksList"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="subjects-tab" class="tab-content">
+            <div class="card">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <h3>Мои предметы</h3>
+                    <button class="primary small" id="addSubjectBtn">+ Добавить</button>
+                </div>
+                <div id="subjectsList"></div>
+            </div>
+        </div>
+
+        <div id="teachers-tab" class="tab-content">
+            <div class="card">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <h3>Преподаватели</h3>
+                    <button class="primary small" id="addTeacherBtn">+ Добавить</button>
+                </div>
+                <div id="teachersList"></div>
+                <div class="empty-message" id="noTeachersMsg" style="display: none;">Нет преподавателей. Добавьте предметы с указанием преподавателя или создайте вручную.</div>
+            </div>
+        </div>
+
+        <div id="settings-tab" class="tab-content">
+            <!-- Статистика -->
+            <div class="settings-section">
+                <h3>📊 Статистика</h3>
+                <div id="statsContent" class="stats-grid"></div>
+            </div>
+
+            <!-- Архив (простой блок, не аккордеон) -->
+            <div class="settings-section">
+                <h3>🗂️ Архив выполненных заданий</h3>
+                <div id="archiveList"></div>
+                <div id="archiveToggle" class="archive-toggle-btn"></div>
+            </div>
+
+            <!-- Оформление -->
+            <div class="settings-section">
+                <h3>🎨 Оформление</h3>
+                
+                <!-- Цветовая схема -->
+                <label>Цветовая схема:</label>
+                <div class="theme-selector" id="themeSelector">
+                    <div class="theme-option" data-theme="light" style="background: #ffffff; border-color: #ccc;"></div>
+                    <div class="theme-option" data-theme="dark" style="background: #0f172a; border-color: #334155;"></div>
+                    <div class="theme-option" data-theme="forest" style="background: #e2efe2; border-color: #a8d5a8;"></div>
+                    <div class="theme-option" data-theme="ocean" style="background: #d4eaff; border-color: #99c2ff;"></div>
+                    <div class="theme-option" data-theme="sunset" style="background: #ffe6d4; border-color: #ffb380;"></div>
+                    <div class="theme-option" data-theme="cosmos" style="background: #16213e; border-color: #4d4d80;"></div>
+                </div>
+
+                <!-- Акцентный цвет -->
+                <label style="margin-top: 12px;">Акцентный цвет:</label>
+                <div class="accent-palette" id="accentPalette">
+                    <div class="accent-color" data-accent="blue" style="background: #3b82f6;"></div>
+                    <div class="accent-color" data-accent="green" style="background: #22c55e;"></div>
+                    <div class="accent-color" data-accent="purple" style="background: #a855f7;"></div>
+                    <div class="accent-color" data-accent="orange" style="background: #f97316;"></div>
+                    <div class="accent-color" data-accent="pink" style="background: #ec4899;"></div>
+                </div>
+
+                <!-- Фоновый узор -->
+                <label>Фоновый узор:</label>
+                <select id="patternSelect" class="small" style="width: 100%; margin: 8px 0;">
+                    <option value="none">Нет</option>
+                    <option value="stars">⭐ Звёзды</option>
+                    <option value="leaves">🍃 Листья</option>
+                    <option value="hearts">❤️ Сердечки</option>
+                    <option value="books">📚 Книги</option>
+                </select>
+
+                <!-- Размер шрифта -->
+                <label>Размер шрифта:</label>
+                <div class="slider-container">
+                    <span>Маленький</span>
+                    <input type="range" id="fontSizeSlider" min="0" max="2" step="1" value="1">
+                    <span>Большой</span>
+                </div>
+
+                <!-- Яркость и контрастность -->
+                <label>Яркость:</label>
+                <input type="range" id="brightnessSlider" min="0.5" max="1.5" step="0.1" value="1" style="width: 100%;">
+                <label>Контрастность:</label>
+                <input type="range" id="contrastSlider" min="0.5" max="1.5" step="0.1" value="1" style="width: 100%;">
+            </div>
+
+            <!-- Информационный раздел -->
+            <div class="settings-section">
+                <h3>ℹ️ Информация</h3>
+                <div class="accordion-item" id="guideAccordion">
+                    <div class="accordion-header">
+                        <h4>📖 Руководство пользователя</h4>
+                        <span class="accordion-icon">▶</span>
+                    </div>
+                    <div class="accordion-content">
+                        <div class="info-text">
+                            Привет, друг! 👋<br>
+                            Я написал это PWA-приложение для собственного пользования, но ты тоже можешь им пользоваться в своё удовольствие. Это твой личный помощник – планер заданий. Он живёт прямо в браузере, работает на телефоне и компьютере, и все твои данные остаются только у тебя (в локальном хранилище). Давай разберёмся, что тут умеет этот маленький трудяга.
+                            <hr>
+                            <strong>📱 Навигация – всё под рукой</strong><br>
+                            Внизу экрана закреплено меню с четырьмя вкладками. Оно сворачивается, если кликнуть по свободному месту (не по иконке), и разворачивается обратно по кнопке 📌.<br>
+                            • <strong>Задания</strong> – главный экран со списком и календарём.<br>
+                            • <strong>Предметы</strong> – список твоих учебных дисциплин.<br>
+                            • <strong>Преподаватели</strong> – карточки учителей с аватарками, заметками и метками.<br>
+                            • <strong>Настройки</strong> – статистика, архив, резервное копирование и кастомизация оформления.<br>
+                            Просто тапай по нужной иконке – и ты там. А если хочешь открыть карточку предмета, задания или преподавателя, просто кликни в любую область его блока (не обязательно целиться в кнопку «Ред») — так удобнее и нативнее.
+                            <hr>
+                            <strong>📋 Вкладка «Задания» – твой ежедневник</strong><br>
+                            Здесь живут все твои активные задания. Есть два способа их видеть:<br>
+                            <strong>📃 Список</strong><br>
+                            • Каждое задание отображается с предметом, заданием (поле переименовано из «Описание», чтобы было понятнее), дедлайном и сложностью.<br>
+                            • Сложность предмета и задания показывается эмодзи: 😊 – легко, 😐 – средне, 😓 – сложно.<br>
+                            • Если до дедлайна меньше 3 дней, оставшиеся дни подсвечиваются жёлтым (раньше были зелёными до последнего, теперь видно срочность).<br>
+                            • Если к заданию прикреплены файлы, рядом с предметом появится значок 📎 с количеством.<br>
+                            • Просроченные задания подсвечиваются красным и пульсируют.<br>
+                            • Справа от задания – кнопки: ✏️ (редактировать), ✓ (отметить как выполненное), 🗑 (удалить).<br>
+                            <strong>📅 Календарь</strong><br>
+                            • Переключи вид кнопкой «Календарь». Тут видно, на какие дни запланированы задания.<br>
+                            • Дни с задачами отмечены зелёной точкой, с просроченными – красной.<br>
+                            • Тапни по любому числу – внизу покажутся все задания на этот день.<br>
+                            • Кнопками ← и → можно листать месяцы.<br>
+                            • Появилась кнопка «Сохранить» (рядом с заголовком дня) – она сохраняет все задания выбранного дня в текстовый файл. Удобно, если тебя попросили скинуть домашку на завтра.<br>
+                            <strong>➕ Как добавить задание?</strong><br>
+                            • Нажми кнопку «+ Добавить» в карточке «Мои задания».<br>
+                            • Выбери предмет из списка (предварительно создай его во вкладке «Предметы»).<br>
+                            • Напиши задание, при желании – заметки.<br>
+                            • Укажи сложность – нажми на соответствующий смайлик.<br>
+                            • Если нужно – прикрепи файлы (до 5 штук, не больше 5 МБ суммарно). Поддерживаются картинки, PDF, Word, Excel, текстовые файлы.<br>
+                            • Выбери дату дедлайна и сохрани.<br>
+                            Готово! Задание появится в списке и на календаре.
+                            <hr>
+                            <strong>📚 Вкладка «Предметы» – твои дисциплины</strong><br>
+                            Тут ты управляешь предметами, по которым получаешь задания. Без предметов задания создать не получится – сначала добавь их.<br>
+                            • Добавить предмет: кнопка «+ Добавить». Обязательно название, а преподаватель и аудитория – опционально.<br>
+                            • Для каждого предмета можно выбрать сложность (😊, 😐, 😓) – она будет отображаться рядом с названием.<br>
+                            • Кнопки редактирования и удаления теперь выглядят так же, как в других разделах (единый стиль).<br>
+                            • Если удалишь предмет, все его задания (и активные, и архивные) тоже исчезнут – так что будь осторожен 😉
+                            <hr>
+                            <strong>👥 Вкладка «Преподаватели» – картотека учителей</strong><br>
+                            Здесь автоматически собираются все преподаватели, которых ты указал в предметах. Если у двух предметов один учитель – он покажется один раз.<br>
+                            Для каждого преподавателя можно:<br>
+                            • ✏️ Редактировать – нажми на карточку или кнопку ✏️.<br>
+                            • 🗑 Удалить – вместе с ним удалятся все его предметы и связанные задания (подтверждение спросит).<br>
+                            • 📝 Добавить заметку – теперь заметка редактируется прямо в окне редактирования преподавателя (раньше была отдельная кнопка).<br>
+                            • 🖼️ Установить аватарку – выбери тип: «Без», «Эмодзи» или «Фото».<br>
+                            Если выберешь эмодзи – откроется сетка с кучей вариантов.<br>
+                            Если фото – загрузи картинку с устройства.<br>
+                            Предпросмотр покажет, как будет выглядеть.<br>
+                            • 🏷️ Добавить метки (теги) – выбери до 5 характеристик из списка (например, «Строгий», «Добрый», «Ставит автомат»). Они отобразятся под именем. Метки помогают быстро вспомнить особенности преподавателя.<br>
+                            • Раньше заметка о преподавателе висела где-то сбоку и была неудобной – теперь она расположена аккуратно под именем, а метки – под ней.<br>
+                            Аватарки, заметки и метки делают карточки живыми и помогают быстрее ориентироваться.
+                            <hr>
+                            <strong>⚙️ Вкладка «Настройки» – всё под контролем</strong><br>
+                            <strong>📊 Статистика</strong><br>
+                            Маленькие циферки показывают общую картину:<br>
+                            • Всего заданий<br>
+                            • Активных (не выполненных)<br>
+                            • Выполненных<br>
+                            • Просроченных<br>
+                            <strong>🗂️ Архив выполненных заданий</strong><br>
+                            Все задания, которые ты отметил выполненными (✓), попадают сюда. Их можно:<br>
+                            • Вернуть обратно в активные (кнопка ↩️) – если передумал.<br>
+                            • Редактировать (✏️) – вдруг нужно что-то изменить.<br>
+                            • Удалить навсегда (🗑).<br>
+                            Если заданий много, архив можно развернуть или свернуть – кнопка «Показать ещё…» / «Свернуть архив».<br>
+                            <strong>💾 Резервное копирование</strong><br>
+                            Все данные хранятся у тебя в браузере. Чтобы не потерять их (например, при смене телефона или чистке кэша), можно сделать бэкап:<br>
+                            • 📥 Скачать бэкап – сохраняет файл .json со всеми предметами, заданиями, преподавателями и аватарками.<br>
+                            • 📤 Восстановить – загрузи ранее сохранённый файл обратно.<br>
+                            Это твоя страховка. Держи бэкап в надёжном месте.<br>
+                            <strong>🧹 Очистка данных</strong><br>
+                            Кнопка «Очистить все данные» безвозвратно удалит всё и вернёт приложение к состоянию «из коробки». Пользуйся осторожно.<br>
+                            <strong>🎨 Оформление</strong><br>
+                            Теперь это не просто тёмная или светлая тема, а полноценная кастомизация:<br>
+                            • Цветовая схема – на выбор несколько готовых тем: светлая, тёмная, лесная, океанская, закат, космос.<br>
+                            • Акцентный цвет – можно выбрать синий, зелёный, фиолетовый, оранжевый или розовый.<br>
+                            • Фоновый узор – звёздочки, листики, сердечки или книжки.<br>
+                            • Размер шрифта – маленький, средний, большой.<br>
+                            • Яркость и контрастность – ползунки для тонкой настройки.<br>
+                            Все настройки сохраняются.
+                            <hr>
+                            <strong>🧩 Дополнительные плюшки</strong><br>
+                            • PWA – приложение можно установить на телефон или компьютер как отдельную программу (через меню браузера «Добавить на главный экран»). Тогда оно будет открываться без адресной строки и выглядеть как родное.<br>
+                            • Анимации – всё стало более плавным и приятным: элементы появляются с лёгкой задержкой, карточки при наведении приподнимаются, кнопки отзываются на касание.<br>
+                            • Файлы внутри приложения – если ты прикрепил картинку к заданию, её можно открыть на весь экран, тапнув по ней. Документы скачиваются или открываются в браузере.<br>
+                            • Локальность – никакой сервер, никакой интернет не нужен. Твои данные – только твои.
+                            <hr>
+                            <strong>В добрый путь!</strong><br>
+                            Надеюсь, этот маленький планировщик станет твоим верным помощником и немного разгрузит голову. Если появятся идеи или вопросы – ты сможешь написать в поддержку (контакты есть ниже). Удачи в учёбе! 🍀
+                        </div>
+                    </div>
+                </div>
+                <div class="accordion-item" id="historyAccordion">
+                    <div class="accordion-header">
+                        <h4>📅 История обновлений</h4>
+                        <span class="accordion-icon">▶</span>
+                    </div>
+                    <div class="accordion-content">
+                        <div class="info-text">
+                            <strong>Первоначальная версия (23.02.2026)</strong><br>
+                            Приложение представляет собой локальный планировщик домашних заданий с возможностью создания предметов, заданий и заметок о преподавателях. Основные разделы: «Предметы», «Задания», «Преподаватели», «Архив», «Статистика». Задания можно отмечать выполненными, редактировать, удалять. Поддерживается два режима просмотра заданий: список и календарь. Данные сохраняются в localStorage браузера, предусмотрен экспорт и импорт резервной копии в формате JSON. Доступно переключение тёмной темы. Интерфейс адаптирован для мобильных устройств.
+                            <hr>
+                            <strong>Обновление от 27.02.2026</strong><br>
+                            <ol>
+                                <li><strong>Навигация</strong> – В нижней части экрана добавлено фиксированное меню с четырьмя вкладками («Задания», «Предметы», «Преподаватели», «Настройки»). Переключение между разделами стало более удобным и интуитивным.</li>
+                                <li><strong>Исправление ошибок</strong> – При редактировании задания дата больше не сдвигается на день назад (исправлена проблема с часовым поясом). Исправлен баг, из-за которого при редактировании задания сбрасывался выбранный предмет.</li>
+                                <li><strong>Новый раздел «Настройки»</strong> – Объединены управление оформлением (тема), статистика, архив выполненных заданий и инструменты резервного копирования. Кнопки экспорта и импорта теперь имеют одинаковый размер.</li>
+                                <li><strong>Анимации</strong> – Добавлены плавные появления элементов (карточек, строк), пульсация для просроченных заданий, анимация загрузочного экрана (splash screen).</li>
+                                <li><strong>Аватарки преподавателей</strong> – Теперь каждому преподавателю можно установить аватар. Доступны варианты: эмодзи (из расширенной сетки), загруженное фото или отсутствие аватарки. Предпросмотр отображается в реальном времени.</li>
+                                <li><strong>Прикрепление файлов к заданиям</strong> – Добавлена возможность прикреплять до 5 файлов (изображения, PDF, документы Word, Excel, текстовые файлы) общим объёмом не более 5 МБ. Файлы отображаются в списке заданий и могут быть просмотрены или скачаны.</li>
+                                <li><strong>Порядок вкладок</strong> – Начальным экраном теперь является раздел «Задания» (ранее был «Предметы»), что сделано для более быстрого доступа к текущим задачам.</li>
+                                <li><strong>Информационный раздел</strong> – Добавлен новый раздел с руководством пользователя, историей изменений и контактами для обратной связи.</li>
+                            </ol>
+                            <hr>
+                            <strong>Обновление от 28.02.2026</strong><br>
+                            <ol>
+                                <li><strong>Метки преподавателей</strong> – теперь каждому учителю можно добавить до 5 характеристик (строгий, добрый, ставит автомат и т.д.), которые отображаются под именем.</li>
+                                <li><strong>Продвинутая кастомизация</strong> – вместо простого переключения тёмной темы появились цветовые схемы (лес, океан, закат, космос), акцентные цвета, фоновые узоры, регулировка яркости и контрастности.</li>
+                                <li><strong>Сложность предметов</strong> – у предметов тоже появились эмодзи сложности (😊, 😐, 😓), как у заданий.</li>
+                                <li><strong>Экспорт заданий на день</strong> – кнопка «Сохранить» в календаре позволяет выгрузить список задач на выбранную дату в текстовый файл.</li>
+                                <li><strong>Поле «Описание» переименовано в «Задание»</strong> – чтобы было интуитивно понятнее.</li>
+                                <li><strong>Цветовая индикация срочности</strong> – если до дедлайна осталось меньше 3 дней, оставшиеся дни подсвечиваются жёлтым.</li>
+                                <li><strong>Кнопка «Очистить кэш»</strong> – в настройках появилась возможность полностью сбросить все данные.</li>
+                                <li><strong>Улучшенный блок заметки преподавателя</strong> – заметка теперь аккуратно вписана в карточку, без лишних отступов и непонятных габаритов.</li>
+                                <li><strong>Сворачиваемая навигация</strong> – нижнее меню можно свернуть одним кликом по пустому месту (не по иконке) и развернуть обратно по кнопке 📌.</li>
+                                <li><strong>Заметки о преподавателе</strong> – теперь редактируются в том же окне, что и остальные данные (раньше были отдельной кнопкой).</li>
+                                <li><strong>Открытие карточек по клику на любую область</strong> – теперь не нужно целиться в кнопку «Ред», достаточно нажать на сам блок.</li>
+                                <li><strong>Единый стиль кнопок</strong> – в разделе предметов кнопки редактирования и удаления приведены к общему виду с другими разделами.</li>
+                                <li><strong>Улучшенная анимация</strong> – все переходы стали более плавными и заметными.</li>
+                                <li><strong>Кликабельный Telegram</strong> – в разделе контактов ссылка на телеграм-поддержку теперь открывается при нажатии на весь блок с юзернеймом.</li>
+                            </ol>
+                        </div>
+                    </div>
+                </div>
+                <div class="accordion-item" id="contactsAccordion">
+                    <div class="accordion-header">
+                        <h4>📬 Контакты</h4>
+                        <span class="accordion-icon">▶</span>
+                    </div>
+                    <div class="accordion-content">
+                        <div class="info-text">
+                            <p>По всем вопросам, предложениям и сообщениям об ошибках пишите в Telegram (приоритет):</p>
+                            <a href="https://t.me/HWplannerSupport" class="tg-link" target="_blank" rel="noopener noreferrer" style="font-size: 1rem; background: var(--bg-primary); padding: 8px; border-radius: 8px; display: inline-block; margin: 4px 0; text-decoration: none; color: var(--text-primary);">📱 @HWplannerSupport</a>
+                            <p>Или на почту:</p>
+                            <p style="font-size: 1rem; background: var(--bg-primary); padding: 8px; border-radius: 8px;">📧 adesandrperyazev@gmail.com</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Резервное копирование -->
+            <div class="settings-section">
+                <h3>💾 Резервное копирование</h3>
+                <div class="form-row">
+                    <button class="small" id="exportBtn">📥 Скачать бэкап</button>
+                    <label for="backupFile" class="small file-input-label">📤 Восстановить</label>
+                    <input type="file" id="backupFile" accept=".json">
+                </div>
+                <p style="font-size:0.8rem; color:var(--text-secondary); margin-top:8px;">Данные хранятся локально. Экспортируй файл, чтобы не потерять.</p>
+            </div>
+
+            <!-- Кнопка очистки кэша -->
+            <div class="settings-section">
+                <h3>🧹 Очистка данных</h3>
+                <button class="small warning" id="clearCacheBtn">Очистить все данные</button>
+                <p style="font-size:0.8rem; color:var(--text-secondary); margin-top:8px;">Это действие безвозвратно удалит все предметы, задания, преподавателей и настройки. Приложение вернётся к состоянию «из коробки».</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Нижняя навигация -->
+    <div class="bottom-nav" id="bottomNav">
+        <div class="nav-container">
+            <button class="nav-item active" data-tab="active">
+                <span class="nav-icon">📋</span>
+                <span class="nav-label">Задания</span>
+            </button>
+            <button class="nav-item" data-tab="subjects">
+                <span class="nav-icon">📚</span>
+                <span class="nav-label">Предметы</span>
+            </button>
+            <button class="nav-item" data-tab="teachers">
+                <span class="nav-icon">👥</span>
+                <span class="nav-label">Преподаватели</span>
+            </button>
+            <button class="nav-item" data-tab="settings">
+                <span class="nav-icon">⚙️</span>
+                <span class="nav-label">Настройки</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Кнопка разворачивания навигации -->
+    <div class="nav-expand-btn" id="navExpandBtn">📌</div>
+
+    <!-- Модалка для предмета (с выбором сложности) -->
+    <div id="subjectModal" class="modal-overlay">
+        <div class="modal">
+            <h3 id="subjectModalTitle">Новый предмет</h3>
+            <form id="subjectForm">
+                <input type="hidden" id="subjectId">
+                <input type="text" id="subjectName" placeholder="Название (обязательно)" required>
+                <input type="text" id="subjectTeacher" placeholder="Преподаватель">
+                <input type="text" id="subjectClassroom" placeholder="Аудитория">
+                
+                <label style="margin-top: 12px;">Сложность предмета:</label>
+                <div class="difficulty-selector">
+                    <button type="button" class="difficulty-btn" data-difficulty="easy">😊</button>
+                    <button type="button" class="difficulty-btn" data-difficulty="medium">😐</button>
+                    <button type="button" class="difficulty-btn" data-difficulty="hard">😓</button>
+                </div>
+                <input type="hidden" id="subjectDifficulty" value="medium">
+                
+                <div class="form-row">
+                    <button type="submit" class="primary">Сохранить</button>
+                    <button type="button" class="close-modal">Отмена</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Модалка для задания (с переименованным полем) -->
+    <div id="homeworkModal" class="modal-overlay">
+        <div class="modal">
+            <h3 id="homeworkModalTitle">Новое задание</h3>
+            <form id="homeworkForm">
+                <input type="hidden" id="homeworkId">
+                <select id="homeworkSubject" required>
+                    <option value="">Выберите предмет</option>
+                </select>
+                <textarea id="homeworkDesc" placeholder="Задание" rows="2" required></textarea>
+                
+                <label>Сложность:</label>
+                <div class="difficulty-selector">
+                    <button type="button" class="difficulty-btn" data-difficulty="easy">😊</button>
+                    <button type="button" class="difficulty-btn" data-difficulty="medium">😐</button>
+                    <button type="button" class="difficulty-btn" data-difficulty="hard">😓</button>
+                </div>
+                <input type="hidden" id="homeworkDifficulty" value="medium">
+
+                <textarea id="homeworkNotes" placeholder="Дополнительные заметки к заданию" rows="2"></textarea>
+
+                <label>Прикрепить файлы (картинки, документы):</label>
+                <input type="file" id="homeworkFiles" multiple accept="image/*,.pdf,.doc,.docx,.txt,.xls,.xlsx">
+                <label for="homeworkFiles" class="file-upload-btn">📎 Выбрать файлы</label>
+                <div id="fileList" class="attachments-preview"></div>
+
+                <input type="date" id="homeworkDeadline" required>
+                <div class="form-row">
+                    <button type="submit" class="primary">Сохранить</button>
+                    <button type="button" class="close-modal">Отмена</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Модалка для просмотра файлов -->
+    <div id="fileViewerModal" class="modal-overlay">
+        <div class="modal" style="max-width: 500px;">
+            <h3 id="fileViewerTitle">Прикрепленные файлы</h3>
+            <div id="fileViewerContent" style="max-height: 60vh; overflow-y: auto;"></div>
+            <div class="form-row">
+                <button type="button" class="close-modal">Закрыть</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модалка для увеличенного изображения -->
+    <div id="imageViewerModal" class="modal-overlay">
+        <div class="modal" style="max-width: 90%; background: transparent; box-shadow: none;">
+            <img id="fullImage" src="" style="width: 100%; border-radius: 16px;">
+            <div class="form-row" style="justify-content: center; margin-top: 16px;">
+                <button type="button" class="close-modal primary">Закрыть</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модалка для редактирования преподавателя (с тегами) -->
+    <div id="teacherModal" class="modal-overlay">
+        <div class="modal">
+            <h3 id="teacherModalTitle">Редактировать преподавателя</h3>
+            <form id="teacherForm">
+                <input type="hidden" id="teacherOldName">
+                <input type="text" id="teacherNewName" placeholder="Имя преподавателя" required>
+                
+                <label style="margin-top: 12px;">Аватарка:</label>
+                <div class="avatar-options">
+                    <button type="button" class="avatar-option-btn" data-avatar-type="none">❌ Без</button>
+                    <button type="button" class="avatar-option-btn" data-avatar-type="emoji">😊 Эмодзи</button>
+                    <button type="button" class="avatar-option-btn" data-avatar-type="image">📷 Фото</button>
+                </div>
+                
+                <input type="hidden" id="teacherAvatarType" value="none">
+                <input type="hidden" id="teacherAvatarData" value="">
+                
+                <div id="emojiSelector" style="display: none;">
+                    <div class="emoji-grid">
+                        <button type="button" class="emoji-btn">👨‍🏫</button><button type="button" class="emoji-btn">👩‍🏫</button><button type="button" class="emoji-btn">🧑‍🏫</button><button type="button" class="emoji-btn">👨‍🔬</button><button type="button" class="emoji-btn">👩‍🔬</button><button type="button" class="emoji-btn">👨‍💻</button><button type="button" class="emoji-btn">👩‍💻</button><button type="button" class="emoji-btn">👨‍🎓</button><button type="button" class="emoji-btn">👩‍🎓</button><button type="button" class="emoji-btn">👨‍🔧</button><button type="button" class="emoji-btn">👩‍🔧</button><button type="button" class="emoji-btn">👨‍🎨</button><button type="button" class="emoji-btn">👩‍🎨</button><button type="button" class="emoji-btn">👨‍⚕️</button><button type="button" class="emoji-btn">👩‍⚕️</button>
+                        <button type="button" class="emoji-btn">😊</button><button type="button" class="emoji-btn">😎</button><button type="button" class="emoji-btn">🧐</button><button type="button" class="emoji-btn">🤓</button><button type="button" class="emoji-btn">😇</button><button type="button" class="emoji-btn">😈</button><button type="button" class="emoji-btn">🤔</button><button type="button" class="emoji-btn">😴</button><button type="button" class="emoji-btn">🤯</button><button type="button" class="emoji-btn">😡</button><button type="button" class="emoji-btn">😭</button><button type="button" class="emoji-btn">😂</button><button type="button" class="emoji-btn">🤷</button><button type="button" class="emoji-btn">🙄</button><button type="button" class="emoji-btn">😬</button><button type="button" class="emoji-btn">🥴</button><button type="button" class="emoji-btn">🫠</button><button type="button" class="emoji-btn">🤥</button><button type="button" class="emoji-btn">😼</button><button type="button" class="emoji-btn">👿</button><button type="button" class="emoji-btn">💀</button><button type="button" class="emoji-btn">👽</button><button type="button" class="emoji-btn">🤖</button><button type="button" class="emoji-btn">🎭</button><button type="button" class="emoji-btn">👾</button>
+                    </div>
+                </div>
+                
+                <div id="imageUploader" style="display: none;">
+                    <input type="file" id="teacherAvatarFile" accept="image/*" style="display: none;">
+                    <button type="button" class="small" id="chooseImageBtn" style="width: 100%; margin: 8px 0;">Выбрать фото</button>
+                    <div id="imagePreview" style="display: none; text-align: center; margin: 8px 0;">
+                        <img id="imagePreviewImg" src="" alt="preview" style="max-width: 100px; max-height: 100px; border-radius: 50%; border: 2px solid var(--accent-color);">
+                        <p style="font-size: 0.8rem; margin: 4px 0;">Фото выбрано</p>
+                    </div>
+                </div>
+                
+                <div id="avatarPreview" class="avatar-preview" style="display: none;">
+                    <div id="previewEmoji" class="avatar-preview-emoji"></div>
+                    <img id="previewImage" class="avatar-preview-img" src="" alt="preview" style="display: none;">
+                    <span id="previewText" class="avatar-preview-text">Предпросмотр</span>
+                </div>
+
+                <label style="margin-top: 12px;">Заметка (текст):</label>
+                <textarea id="teacherNote" placeholder="Введите заметку..." rows="2"></textarea>
+
+                <label style="margin-top: 12px;">Метки (выберите до 5):</label>
+                <div class="selected-tags-info" id="selectedTagsInfo">Выбрано: 0/5</div>
+                <div class="tags-selector" id="tagsSelector"></div>
+                
+                <div class="form-row" style="margin-top: 16px;">
+                    <button type="submit" class="primary">Сохранить</button>
+                    <button type="button" class="close-modal">Отмена</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Модалка для создания преподавателя -->
+    <div id="addTeacherModal" class="modal-overlay">
+        <div class="modal">
+            <h3 id="addTeacherModalTitle">Новый преподаватель</h3>
+            <form id="addTeacherForm">
+                <input type="text" id="newTeacherName" placeholder="Имя преподавателя" required>
+                
+                <label style="margin-top: 12px;">Аватарка:</label>
+                <div class="avatar-options">
+                    <button type="button" class="avatar-option-btn" data-avatar-type="none">❌ Без</button>
+                    <button type="button" class="avatar-option-btn" data-avatar-type="emoji">😊 Эмодзи</button>
+                    <button type="button" class="avatar-option-btn" data-avatar-type="image">📷 Фото</button>
+                </div>
+                
+                <input type="hidden" id="newTeacherAvatarType" value="none">
+                <input type="hidden" id="newTeacherAvatarData" value="">
+                
+                <div id="newEmojiSelector" style="display: none;">
+                    <div class="emoji-grid">
+                        <button type="button" class="emoji-btn">👨‍🏫</button><button type="button" class="emoji-btn">👩‍🏫</button><button type="button" class="emoji-btn">🧑‍🏫</button><button type="button" class="emoji-btn">👨‍🔬</button><button type="button" class="emoji-btn">👩‍🔬</button><button type="button" class="emoji-btn">👨‍💻</button><button type="button" class="emoji-btn">👩‍💻</button><button type="button" class="emoji-btn">👨‍🎓</button><button type="button" class="emoji-btn">👩‍🎓</button><button type="button" class="emoji-btn">👨‍🔧</button><button type="button" class="emoji-btn">👩‍🔧</button><button type="button" class="emoji-btn">👨‍🎨</button><button type="button" class="emoji-btn">👩‍🎨</button><button type="button" class="emoji-btn">👨‍⚕️</button><button type="button" class="emoji-btn">👩‍⚕️</button>
+                        <button type="button" class="emoji-btn">😊</button><button type="button" class="emoji-btn">😎</button><button type="button" class="emoji-btn">🧐</button><button type="button" class="emoji-btn">🤓</button><button type="button" class="emoji-btn">😇</button><button type="button" class="emoji-btn">😈</button><button type="button" class="emoji-btn">🤔</button><button type="button" class="emoji-btn">😴</button><button type="button" class="emoji-btn">🤯</button><button type="button" class="emoji-btn">😡</button><button type="button" class="emoji-btn">😭</button><button type="button" class="emoji-btn">😂</button><button type="button" class="emoji-btn">🤷</button><button type="button" class="emoji-btn">🙄</button><button type="button" class="emoji-btn">😬</button><button type="button" class="emoji-btn">🥴</button><button type="button" class="emoji-btn">🫠</button><button type="button" class="emoji-btn">🤥</button><button type="button" class="emoji-btn">😼</button><button type="button" class="emoji-btn">👿</button><button type="button" class="emoji-btn">💀</button><button type="button" class="emoji-btn">👽</button><button type="button" class="emoji-btn">🤖</button><button type="button" class="emoji-btn">🎭</button><button type="button" class="emoji-btn">👾</button>
+                    </div>
+                </div>
+                
+                <div id="newImageUploader" style="display: none;">
+                    <input type="file" id="newTeacherAvatarFile" accept="image/*" style="display: none;">
+                    <button type="button" class="small" id="newChooseImageBtn" style="width: 100%; margin: 8px 0;">Выбрать фото</button>
+                    <div id="newImagePreview" style="display: none; text-align: center; margin: 8px 0;">
+                        <img id="newImagePreviewImg" src="" alt="preview" style="max-width: 100px; max-height: 100px; border-radius: 50%; border: 2px solid var(--accent-color);">
+                        <p style="font-size: 0.8rem; margin: 4px 0;">Фото выбрано</p>
+                    </div>
+                </div>
+                
+                <div id="newAvatarPreview" class="avatar-preview" style="display: none;">
+                    <div id="newPreviewEmoji" class="avatar-preview-emoji"></div>
+                    <img id="newPreviewImage" class="avatar-preview-img" src="" alt="preview" style="display: none;">
+                    <span id="newPreviewText" class="avatar-preview-text">Предпросмотр</span>
+                </div>
+
+                <label style="margin-top: 12px;">Заметка (текст):</label>
+                <textarea id="newTeacherNote" placeholder="Введите заметку..." rows="2"></textarea>
+
+                <label style="margin-top: 12px;">Метки (выберите до 5):</label>
+                <div class="selected-tags-info" id="newSelectedTagsInfo">Выбрано: 0/5</div>
+                <div class="tags-selector" id="newTagsSelector"></div>
+                
+                <div class="form-row" style="margin-top: 16px;">
+                    <button type="submit" class="primary">Сохранить</button>
+                    <button type="button" class="close-modal">Отмена</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Модалка для заметки преподавателя (больше не используется, но оставлена для совместимости) -->
+    <div id="teacherNoteModal" class="modal-overlay">
+        <div class="modal">
+            <h3 id="teacherNoteModalTitle">Заметка о преподавателе</h3>
+            <form id="teacherNoteForm">
+                <input type="hidden" id="teacherNoteName">
+                <textarea id="teacherNoteText" placeholder="Введите заметку..." rows="4" style="width:100%;"></textarea>
+                <div class="form-row">
+                    <button type="submit" class="primary">Сохранить</button>
+                    <button type="button" class="close-modal">Отмена</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Кастомная модалка для сообщений -->
+    <div id="messageModal" class="modal-overlay message-modal">
+        <div class="modal">
+            <h3 id="messageModalTitle">Сообщение</h3>
+            <p id="messageModalText"></p>
+            <div class="form-row" id="messageModalButtons">
+            </div>
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            // ==================== УПРАВЛЕНИЕ ТЕМАМИ ====================
+            let themeSettings = {
+                baseTheme: 'light',
+                accent: 'blue',
+                pattern: 'none',
+                fontSize: 1,
+                brightness: 1,
+                contrast: 1
+            };
+
+            function loadThemeSettings() {
+                const saved = localStorage.getItem('hw_theme');
+                if (saved) {
+                    themeSettings = JSON.parse(saved);
+                }
+                applyTheme();
+            }
+
+            function saveThemeSettings() {
+                localStorage.setItem('hw_theme', JSON.stringify(themeSettings));
+            }
+
+            function applyTheme() {
+                const body = document.body;
+                body.className = body.className.replace(/dark-theme/g, '').replace(/theme-\S+/g, '').replace(/accent-\S+/g, '').replace(/font-\S+/g, '').replace(/pattern-\S+/g, '').replace(/brightness-contrast/g, '').trim();
+                
+                if (themeSettings.baseTheme === 'dark') {
+                    body.classList.add('dark-theme');
+                } else if (themeSettings.baseTheme !== 'light') {
+                    body.classList.add('theme-' + themeSettings.baseTheme);
+                }
+                
+                if (themeSettings.accent !== 'blue') {
+                    body.classList.add('accent-' + themeSettings.accent);
+                }
+                
+                if (themeSettings.fontSize === 0) {
+                    body.classList.add('font-small');
+                } else if (themeSettings.fontSize === 2) {
+                    body.classList.add('font-large');
+                }
+                
+                if (themeSettings.pattern !== 'none') {
+                    body.classList.add('pattern-' + themeSettings.pattern);
+                }
+                
+                body.classList.add('brightness-contrast');
+                body.style.setProperty('--brightness', themeSettings.brightness);
+                body.style.setProperty('--contrast', themeSettings.contrast);
+
+                updateThemeUI();
+            }
+
+            function updateThemeUI() {
+                document.querySelectorAll('.theme-option').forEach(el => {
+                    el.classList.toggle('active', el.dataset.theme === themeSettings.baseTheme);
+                });
+                document.querySelectorAll('.accent-color').forEach(el => {
+                    el.classList.toggle('active', el.dataset.accent === themeSettings.accent);
+                });
+                document.getElementById('patternSelect').value = themeSettings.pattern;
+                document.getElementById('fontSizeSlider').value = themeSettings.fontSize;
+                document.getElementById('brightnessSlider').value = themeSettings.brightness;
+                document.getElementById('contrastSlider').value = themeSettings.contrast;
+            }
+
+            function setupThemeControls() {
+                document.querySelectorAll('.theme-option').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        themeSettings.baseTheme = btn.dataset.theme;
+                        applyTheme();
+                        saveThemeSettings();
+                    });
+                });
+                document.querySelectorAll('.accent-color').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        themeSettings.accent = btn.dataset.accent;
+                        applyTheme();
+                        saveThemeSettings();
+                    });
+                });
+                document.getElementById('patternSelect').addEventListener('change', (e) => {
+                    themeSettings.pattern = e.target.value;
+                    applyTheme();
+                    saveThemeSettings();
+                });
+                document.getElementById('fontSizeSlider').addEventListener('input', (e) => {
+                    themeSettings.fontSize = parseInt(e.target.value);
+                    applyTheme();
+                    saveThemeSettings();
+                });
+                document.getElementById('brightnessSlider').addEventListener('input', (e) => {
+                    themeSettings.brightness = parseFloat(e.target.value);
+                    applyTheme();
+                    saveThemeSettings();
+                });
+                document.getElementById('contrastSlider').addEventListener('input', (e) => {
+                    themeSettings.contrast = parseFloat(e.target.value);
+                    applyTheme();
+                    saveThemeSettings();
+                });
+            }
+
+            // ==================== УБИРАЕМ ЗАГРУЗОЧНЫЙ ЭКРАН ====================
+            setTimeout(() => {
+                const splash = document.getElementById('splashScreen');
+                if (splash) {
+                    splash.classList.add('hidden');
+                }
+            }, 1000);
+
+            // ==================== МОДЕЛИ ====================
+            let subjects = [];
+            let homeworks = [];
+            let nextSubjectId = 1;
+            let nextHomeworkId = 1;
+            let teacherData = {};
+
+            let currentDate = new Date();
+            let selectedDate = new Date();
+            let currentView = 'list';
+            let archiveExpanded = false; // для раскрытия полного списка архива
+
+            let navCollapsed = false; // состояние навигации
+
+            let currentEditingTeacher = null;
+            let selectedAvatarType = 'none';
+            let selectedEmoji = '';
+            let selectedImageData = '';
+            let selectedTags = [];
+
+            let newSelectedAvatarType = 'none';
+            let newSelectedEmoji = '';
+            let newSelectedImageData = '';
+            let newSelectedTags = [];
+
+            const tagList = [
+                "проверяет лекции", "Разрешает телефоны", "Нудный", "Придирчивый", "Строгий", "Лояльный", "Требовательный", "Кричит", "Отзывчивый", "Ставит автомат", "Адекватный", "Неадекватный", "Грубый", "Надменный", "Добрый", "Хорошее чувство юмора", "Принципиальный", "Сложный экзамен", "Отмечает", "Входит в положение", "Высокомерный", "Конфликтный", "Вежливый", "Странный", "Общительный", "Скромный", "Щедрый на оценки"
+            ];
+
+            let tempAttachments = [];
+            const MAX_TOTAL_SIZE = 5 * 1024 * 1024;
+
+            function loadData() {
+                const stored = localStorage.getItem('hw_planner');
+                if (stored) {
+                    const data = JSON.parse(stored);
+                    subjects = data.subjects || [];
+                    homeworks = data.homeworks || [];
+                    homeworks.forEach(h => {
+                        h.deadline = new Date(h.deadline);
+                        if (!h.attachments) h.attachments = [];
+                    });
+                    nextSubjectId = data.nextSubjectId || 1;
+                    nextHomeworkId = data.nextHomeworkId || 1;
+                    teacherData = data.teacherData || {};
+                    
+                    Object.keys(teacherData).forEach(teacher => {
+                        if (!teacherData[teacher].tags) teacherData[teacher].tags = [];
+                    });
+                    
+                    if (data.teacherNotes && Object.keys(teacherData).length === 0) {
+                        Object.keys(data.teacherNotes).forEach(teacher => {
+                            teacherData[teacher] = {
+                                note: data.teacherNotes[teacher],
+                                avatarType: 'none',
+                                avatarData: '',
+                                tags: []
+                            };
+                        });
+                    }
+                } else {
+                    subjects = [
+                        { id: 1, name: 'Математика', teacher: 'Иванова', classroom: '201', difficulty: 'medium' },
+                        { id: 2, name: 'Физика', teacher: 'Петров', classroom: '305', difficulty: 'hard' }
+                    ];
+                    homeworks = [
+                        { id: 1, subjectId: 1, description: 'Решить задачи 1-10', deadline: new Date(2025, 2, 25), completed: false, createdAt: new Date(), difficulty: 'medium', notes: '', attachments: [] },
+                        { id: 2, subjectId: 2, description: 'Лабораторная работа', deadline: new Date(2025, 2, 20), completed: false, createdAt: new Date(), difficulty: 'hard', notes: '', attachments: [] }
+                    ];
+                    nextSubjectId = 3;
+                    nextHomeworkId = 3;
+                    teacherData = {
+                        'Иванова': { note: 'Строгая, любит, чтобы всё было по правилам', avatarType: 'emoji', avatarData: '👩‍🏫', tags: ['Строгий', 'Придирчивый'] },
+                        'Петров': { note: 'Добрый, но требует идеального оформления', avatarType: 'emoji', avatarData: '👨‍🏫', tags: ['Добрый', 'Требовательный'] }
+                    };
+                    saveData();
+                }
+            }
+
+            function saveData() {
+                const data = {
+                    subjects,
+                    homeworks: homeworks.map(h => ({ ...h, deadline: h.deadline.toISOString() })),
+                    nextSubjectId,
+                    nextHomeworkId,
+                    teacherData
+                };
+                localStorage.setItem('hw_planner', JSON.stringify(data));
+            }
+
+            function switchTab(tabId) {
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                document.getElementById(tabId + '-tab').classList.add('active');
+                document.querySelectorAll('.nav-item').forEach(item => {
+                    item.classList.remove('active');
+                    if (item.dataset.tab === tabId) item.classList.add('active');
+                });
+                if (tabId === 'settings') {
+                    renderArchive();
+                    renderStats();
+                }
+            }
+
+            function showMessage(title, text, type = 'info', callback = null) {
+                const modal = document.getElementById('messageModal');
+                const modalTitle = document.getElementById('messageModalTitle');
+                const modalText = document.getElementById('messageModalText');
+                const buttonsDiv = document.getElementById('messageModalButtons');
+
+                modalTitle.textContent = title;
+                modalText.textContent = text;
+                buttonsDiv.innerHTML = '';
+
+                if (type === 'confirm') {
+                    const yesBtn = document.createElement('button');
+                    yesBtn.className = 'primary';
+                    yesBtn.textContent = 'Да';
+                    yesBtn.addEventListener('click', () => {
+                        modal.style.display = 'none';
+                        if (callback) callback(true);
+                    });
+                    const noBtn = document.createElement('button');
+                    noBtn.textContent = 'Нет';
+                    noBtn.addEventListener('click', () => {
+                        modal.style.display = 'none';
+                        if (callback) callback(false);
+                    });
+                    buttonsDiv.appendChild(yesBtn);
+                    buttonsDiv.appendChild(noBtn);
+                } else {
+                    const okBtn = document.createElement('button');
+                    okBtn.className = 'primary';
+                    okBtn.textContent = 'OK';
+                    okBtn.addEventListener('click', () => {
+                        modal.style.display = 'none';
+                        if (callback) callback();
+                    });
+                    buttonsDiv.appendChild(okBtn);
+                }
+                modal.style.display = 'flex';
+            }
+
+            function showAlert(text) { showMessage('Сообщение', text, 'info'); }
+            function showConfirm(text) { return new Promise((resolve) => showMessage('Подтверждение', text, 'confirm', resolve)); }
+
+            function exportData() {
+                const data = {
+                    subjects,
+                    homeworks: homeworks.map(h => ({ ...h, deadline: h.deadline.toISOString() })),
+                    nextSubjectId,
+                    nextHomeworkId,
+                    teacherData
+                };
+                const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `hw_backup_${new Date().toISOString().slice(0,10)}.json`;
+                a.click();
+                URL.revokeObjectURL(url);
+            }
+
+            function importData(file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    try {
+                        const data = JSON.parse(e.target.result);
+                        subjects = data.subjects || [];
+                        homeworks = data.homeworks || [];
+                        homeworks.forEach(h => { 
+                            h.deadline = new Date(h.deadline);
+                            if (!h.attachments) h.attachments = [];
+                        });
+                        nextSubjectId = data.nextSubjectId || 1;
+                        nextHomeworkId = data.nextHomeworkId || 1;
+                        teacherData = data.teacherData || {};
+                        Object.keys(teacherData).forEach(teacher => {
+                            if (!teacherData[teacher].tags) teacherData[teacher].tags = [];
+                        });
+                        saveData();
+                        renderAll();
+                        showAlert('Данные восстановлены');
+                    } catch (err) {
+                        showAlert('Ошибка: неверный файл');
+                    }
+                };
+                reader.readAsText(file);
+            }
+
+            function escapeHtml(str) {
+                if (!str) return '';
+                return String(str).replace(/[&<>"]/g, m => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' })[m] || m);
+            }
+
+            function getDifficultyEmoji(difficulty) {
+                if (difficulty === 'easy') return '😊';
+                if (difficulty === 'hard') return '😓';
+                return '😐';
+            }
+
+            // ==================== ФАЙЛЫ ====================
+            function getFileIcon(mimeType, fileName) {
+                if (mimeType.startsWith('image/')) return '🖼️';
+                if (mimeType.includes('pdf')) return '📄';
+                if (mimeType.includes('word') || fileName.match(/\.docx?$/)) return '📝';
+                if (mimeType.includes('excel') || fileName.match(/\.xlsx?$/)) return '📊';
+                if (mimeType.includes('text')) return '📃';
+                return '📎';
+            }
+
+            function handleFileSelect(files) {
+                const totalSize = tempAttachments.reduce((acc, f) => acc + f.data.length * 0.75, 0);
+                for (let file of files) {
+                    if (tempAttachments.length >= 5) { showAlert('Можно прикрепить не более 5 файлов'); break; }
+                    if (file.size > 2 * 1024 * 1024) { showAlert(`Файл "${file.name}" слишком большой (макс. 2 МБ)`); continue; }
+                    if (totalSize + file.size > MAX_TOTAL_SIZE) { showAlert('Общий размер файлов не должен превышать 5 МБ'); break; }
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        tempAttachments.push({ name: file.name, type: file.type, data: e.target.result });
+                        renderTempFileList();
+                    };
+                    reader.readAsDataURL(file);
+                }
+            }
+
+            function renderTempFileList() {
+                const container = document.getElementById('fileList');
+                if (!container) return;
+                let html = '';
+                tempAttachments.forEach((file, index) => {
+                    const icon = getFileIcon(file.type, file.name);
+                    const isImage = file.type.startsWith('image/');
+                    html += `<div class="file-attachment">${isImage ? `<img class="attachment-thumb" src="${file.data}" alt="preview">` : `<span class="attachment-icon">${icon}</span>`}<span class="attachment-name">${escapeHtml(file.name)}</span><button type="button" class="remove-attachment" data-index="${index}">✖</button></div>`;
+                });
+                container.innerHTML = html;
+                container.querySelectorAll('.remove-attachment').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const index = e.target.dataset.index;
+                        if (index !== undefined) {
+                            tempAttachments.splice(index, 1);
+                            renderTempFileList();
+                        }
+                    });
+                });
+            }
+
+            function clearTempFiles() {
+                tempAttachments = [];
+                const container = document.getElementById('fileList');
+                if (container) container.innerHTML = '';
+                document.getElementById('homeworkFiles').value = '';
+            }
+
+            // ==================== ПРЕПОДАВАТЕЛИ ====================
+            function renderTeachers() {
+                const container = document.getElementById('teachersList');
+                const noMsg = document.getElementById('noTeachersMsg');
+                const teacherSet = new Set();
+                subjects.forEach(s => { if (s.teacher && s.teacher.trim() !== '') teacherSet.add(s.teacher.trim()); });
+                Object.keys(teacherData).forEach(t => teacherSet.add(t));
+                const teachers = Array.from(teacherSet).sort();
+                if (teachers.length === 0) {
+                    container.innerHTML = '';
+                    noMsg.style.display = 'block';
+                    return;
+                }
+                noMsg.style.display = 'none';
+                let html = '';
+                teachers.forEach(teacher => {
+                    const relatedSubjects = subjects.filter(s => s.teacher && s.teacher.trim() === teacher).map(s => s.name).join(', ');
+                    const data = teacherData[teacher] || { note: '', avatarType: 'none', avatarData: '', tags: [] };
+                    let avatarHtml = '';
+                    if (data.avatarType === 'emoji' && data.avatarData) avatarHtml = `<div class="teacher-avatar emoji-avatar">${data.avatarData}</div>`;
+                    else if (data.avatarType === 'image' && data.avatarData) avatarHtml = `<img class="teacher-avatar image-avatar" src="${data.avatarData}" alt="${escapeHtml(teacher)}">`;
+                    let tagsHtml = '';
+                    if (data.tags && data.tags.length > 0) {
+                        tagsHtml = `<div class="teacher-tags">` + data.tags.map(tag => `<span class="teacher-tag">${escapeHtml(tag)}</span>`).join('') + `</div>`;
+                    }
+                    html += `
+                        <div class="teacher-item" data-teacher="${escapeHtml(teacher)}">
+                            <div class="teacher-header">
+                                <div class="teacher-info">
+                                    ${avatarHtml}
+                                    <div class="teacher-details">
+                                        <div class="teacher-name">${escapeHtml(teacher)}</div>
+                                        ${relatedSubjects ? `<div class="teacher-subjects">${escapeHtml(relatedSubjects)}</div>` : ''}
+                                    </div>
+                                </div>
+                                <div class="teacher-actions">
+                                    <button class="small" data-action="editTeacher">✏️</button>
+                                    <button class="small warning" data-action="deleteTeacher">🗑</button>
+                                </div>
+                            </div>
+                            ${data.note ? `<div class="teacher-note">${escapeHtml(data.note)}</div>` : ''}
+                            ${tagsHtml}
+                        </div>
+                    `;
+                });
+                container.innerHTML = html;
+            }
+
+            function renderTagsSelector(containerId, selectedTagsArray, infoId, isNew = false) {
+                const container = document.getElementById(containerId);
+                const info = document.getElementById(infoId);
+                if (!container) return;
+                let html = '';
+                tagList.forEach(tag => {
+                    const isSelected = selectedTagsArray.includes(tag);
+                    html += `<button type="button" class="tag-btn ${isSelected ? 'selected' : ''}" data-tag="${escapeHtml(tag)}">${escapeHtml(tag)}</button>`;
+                });
+                container.innerHTML = html;
+                info.textContent = `Выбрано: ${selectedTagsArray.length}/5`;
+                container.querySelectorAll('.tag-btn').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        const tag = btn.dataset.tag;
+                        let currentSelected = isNew ? newSelectedTags : selectedTags;
+                        if (btn.classList.contains('selected')) {
+                            const index = currentSelected.indexOf(tag);
+                            if (index !== -1) currentSelected.splice(index, 1);
+                            btn.classList.remove('selected');
+                        } else {
+                            if (currentSelected.length < 5) {
+                                currentSelected.push(tag);
+                                btn.classList.add('selected');
+                            } else showAlert('Можно выбрать не более 5 меток');
+                        }
+                        info.textContent = `Выбрано: ${currentSelected.length}/5`;
+                    });
+                });
+            }
+
+            function editTeacher(oldName) {
+                currentEditingTeacher = oldName;
+                const data = teacherData[oldName] || { note: '', avatarType: 'none', avatarData: '', tags: [] };
+                document.getElementById('teacherOldName').value = oldName;
+                document.getElementById('teacherNewName').value = oldName;
+                document.getElementById('teacherModalTitle').innerText = 'Редактировать преподавателя';
+                selectedAvatarType = data.avatarType || 'none';
+                selectedEmoji = data.avatarType === 'emoji' ? data.avatarData : '';
+                selectedImageData = data.avatarType === 'image' ? data.avatarData : '';
+                selectedTags = data.tags ? [...data.tags] : [];
+                document.getElementById('teacherAvatarType').value = selectedAvatarType;
+                document.getElementById('teacherAvatarData').value = selectedAvatarType === 'emoji' ? selectedEmoji : selectedImageData;
+                document.getElementById('teacherNote').value = data.note || '';
+                document.querySelectorAll('#teacherModal .avatar-option-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                    if (btn.dataset.avatarType === selectedAvatarType) btn.classList.add('active');
+                });
+                document.getElementById('emojiSelector').style.display = selectedAvatarType === 'emoji' ? 'block' : 'none';
+                document.getElementById('imageUploader').style.display = selectedAvatarType === 'image' ? 'block' : 'none';
+                updateAvatarPreview();
+                renderTagsSelector('tagsSelector', selectedTags, 'selectedTagsInfo', false);
+                document.getElementById('teacherModal').style.display = 'flex';
+            }
+
+            function updateAvatarPreview() {
+                const previewDiv = document.getElementById('avatarPreview');
+                const previewEmoji = document.getElementById('previewEmoji');
+                const previewImage = document.getElementById('previewImage');
+                const previewText = document.getElementById('previewText');
+                if (selectedAvatarType === 'emoji' && selectedEmoji) {
+                    previewDiv.style.display = 'flex';
+                    previewEmoji.style.display = 'flex';
+                    previewEmoji.textContent = selectedEmoji;
+                    previewImage.style.display = 'none';
+                    previewText.textContent = 'Эмодзи выбрано';
+                } else if (selectedAvatarType === 'image' && selectedImageData) {
+                    previewDiv.style.display = 'flex';
+                    previewEmoji.style.display = 'none';
+                    previewImage.style.display = 'block';
+                    previewImage.src = selectedImageData;
+                    previewText.textContent = 'Фото выбрано';
+                } else previewDiv.style.display = 'none';
+            }
+
+            function saveTeacher() {
+                const oldName = document.getElementById('teacherOldName').value.trim();
+                const newName = document.getElementById('teacherNewName').value.trim();
+                if (!newName) { showAlert('Имя не может быть пустым'); return; }
+                const note = document.getElementById('teacherNote').value.trim();
+                if (oldName !== newName) {
+                    teacherData[newName] = { note, avatarType: selectedAvatarType, avatarData: selectedAvatarType === 'emoji' ? selectedEmoji : selectedImageData, tags: selectedTags };
+                    delete teacherData[oldName];
+                    subjects.forEach(s => { if (s.teacher && s.teacher.trim() === oldName) s.teacher = newName; });
+                } else {
+                    teacherData[oldName] = { note, avatarType: selectedAvatarType, avatarData: selectedAvatarType === 'emoji' ? selectedEmoji : selectedImageData, tags: selectedTags };
+                }
+                saveData();
+                renderAll();
+                closeTeacherModal();
+            }
+
+            function openAddTeacher() {
+                document.getElementById('newTeacherName').value = '';
+                document.getElementById('newTeacherNote').value = '';
+                newSelectedAvatarType = 'none';
+                newSelectedEmoji = '';
+                newSelectedImageData = '';
+                newSelectedTags = [];
+                document.getElementById('newTeacherAvatarType').value = 'none';
+                document.getElementById('newTeacherAvatarData').value = '';
+                document.querySelectorAll('#addTeacherModal .avatar-option-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                    if (btn.dataset.avatarType === 'none') btn.classList.add('active');
+                });
+                document.getElementById('newEmojiSelector').style.display = 'none';
+                document.getElementById('newImageUploader').style.display = 'none';
+                document.getElementById('newAvatarPreview').style.display = 'none';
+                renderTagsSelector('newTagsSelector', newSelectedTags, 'newSelectedTagsInfo', true);
+                document.getElementById('addTeacherModal').style.display = 'flex';
+            }
+
+            function saveNewTeacher() {
+                const name = document.getElementById('newTeacherName').value.trim();
+                if (!name) { showAlert('Имя преподавателя обязательно'); return; }
+                const note = document.getElementById('newTeacherNote').value.trim();
+                teacherData[name] = { note, avatarType: newSelectedAvatarType, avatarData: newSelectedAvatarType === 'emoji' ? newSelectedEmoji : newSelectedImageData, tags: newSelectedTags };
+                saveData();
+                renderAll();
+                closeAddTeacherModal();
+            }
+
+            function closeAddTeacherModal() { document.getElementById('addTeacherModal').style.display = 'none'; }
+
+            function deleteTeacher(teacherName) {
+                showConfirm(`Удалить преподавателя "${teacherName}"? Все его предметы и задания будут удалены.`).then(ok => {
+                    if (!ok) return;
+                    const subjectsToDelete = subjects.filter(s => s.teacher && s.teacher.trim() === teacherName).map(s => s.id);
+                    homeworks = homeworks.filter(h => !subjectsToDelete.includes(h.subjectId));
+                    subjects = subjects.filter(s => !subjectsToDelete.includes(s.id));
+                    delete teacherData[teacherName];
+                    saveData();
+                    renderAll();
+                });
+            }
+
+            function editTeacherNote(teacherName) { editTeacher(teacherName); }
+            function closeTeacherModal() { document.getElementById('teacherModal').style.display = 'none'; currentEditingTeacher = null; }
+            function closeTeacherNoteModal() { document.getElementById('teacherNoteModal').style.display = 'none'; }
+
+            // ==================== ПРЕДМЕТЫ ====================
+            function renderSubjects() {
+                const list = document.getElementById('subjectsList');
+                if (!subjects.length) { list.innerHTML = '<div class="empty-message">Предметов пока нет</div>'; return; }
+                let html = '';
+                subjects.forEach(s => {
+                    const difficultyEmoji = getDifficultyEmoji(s.difficulty || 'medium');
+                    html += `<div class="item-row" data-type="subject" data-id="${s.id}"><div class="item-info"><div class="item-title"><span class="difficulty-badge">${difficultyEmoji}</span>${escapeHtml(s.name)}</div><div class="item-sub">${escapeHtml(s.teacher || '')} ${s.classroom ? '· ' + escapeHtml(s.classroom) : ''}</div></div><div class="item-actions"><button class="small" data-action="editSubject">✏️</button><button class="small warning" data-action="deleteSubject">🗑</button></div></div>`;
+                });
+                list.innerHTML = html;
+            }
+
+            function openAddSubject() {
+                document.getElementById('subjectId').value = '';
+                document.getElementById('subjectName').value = '';
+                document.getElementById('subjectTeacher').value = '';
+                document.getElementById('subjectClassroom').value = '';
+                document.getElementById('subjectModalTitle').innerText = 'Новый предмет';
+                document.querySelectorAll('#subjectModal .difficulty-btn').forEach(btn => {
+                    btn.classList.remove('selected');
+                    if (btn.dataset.difficulty === 'medium') btn.classList.add('selected');
+                });
+                document.getElementById('subjectDifficulty').value = 'medium';
+                document.getElementById('subjectModal').style.display = 'flex';
+            }
+
+            function editSubject(id) {
+                const sub = subjects.find(s => s.id === id);
+                if (!sub) return;
+                document.getElementById('subjectId').value = sub.id;
+                document.getElementById('subjectName').value = sub.name;
+                document.getElementById('subjectTeacher').value = sub.teacher || '';
+                document.getElementById('subjectClassroom').value = sub.classroom || '';
+                document.getElementById('subjectModalTitle').innerText = 'Редактировать предмет';
+                document.querySelectorAll('#subjectModal .difficulty-btn').forEach(btn => {
+                    btn.classList.remove('selected');
+                    if (btn.dataset.difficulty === (sub.difficulty || 'medium')) btn.classList.add('selected');
+                });
+                document.getElementById('subjectDifficulty').value = sub.difficulty || 'medium';
+                document.getElementById('subjectModal').style.display = 'flex';
+            }
+
+            function saveSubject() {
+                const id = document.getElementById('subjectId').value;
+                const name = document.getElementById('subjectName').value.trim();
+                if (!name) { showAlert('Название обязательно'); return; }
+                const teacher = document.getElementById('subjectTeacher').value.trim();
+                const classroom = document.getElementById('subjectClassroom').value.trim();
+                const difficulty = document.getElementById('subjectDifficulty').value;
+                if (id) {
+                    const sub = subjects.find(s => s.id == id);
+                    if (sub) { sub.name = name; sub.teacher = teacher; sub.classroom = classroom; sub.difficulty = difficulty; }
+                } else {
+                    const newId = nextSubjectId++;
+                    subjects.push({ id: newId, name, teacher, classroom, difficulty });
+                }
+                saveData();
+                renderAll();
+                closeSubjectModal();
+            }
+
+            function deleteSubject(id) {
+                const hasHomeworks = homeworks.some(h => h.subjectId === id && !h.completed);
+                const sub = subjects.find(s => s.id === id);
+                const msg = hasHomeworks ? `У предмета "${sub.name}" есть активные задания. Всё равно удалить (задания тоже удалятся)?` : `Удалить предмет "${sub.name}"?`;
+                showConfirm(msg).then(ok => {
+                    if (!ok) return;
+                    homeworks = homeworks.filter(h => h.subjectId !== id);
+                    subjects = subjects.filter(s => s.id !== id);
+                    saveData();
+                    renderAll();
+                });
+            }
+
+            function closeSubjectModal() { document.getElementById('subjectModal').style.display = 'none'; }
+            function setupSubjectDifficulty() {
+                document.querySelectorAll('#subjectModal .difficulty-btn').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        document.querySelectorAll('#subjectModal .difficulty-btn').forEach(b => b.classList.remove('selected'));
+                        btn.classList.add('selected');
+                        document.getElementById('subjectDifficulty').value = btn.dataset.difficulty;
+                    });
+                });
+            }
+
+            // ==================== АКТИВНЫЕ ЗАДАНИЯ ====================
+            function renderActive() {
+                const list = document.getElementById('activeList');
+                const active = homeworks.filter(h => !h.completed);
+                if (!active.length) { list.innerHTML = '<div class="empty-message">Нет активных заданий</div>'; return; }
+                let html = '';
+                active.sort((a,b) => a.deadline - b.deadline);
+                active.forEach(h => {
+                    const sub = subjects.find(s => s.id === h.subjectId) || { name: '?' };
+                    const days = Math.ceil((h.deadline - new Date()) / (1000*60*60*24));
+                    let daysClass = '';
+                    let daysText;
+                    if (days < 0) {
+                        daysClass = 'overdue';
+                        daysText = `Просрочено на ${-days} дн.`;
+                    } else if (days <= 3) {
+                        daysClass = 'days-short';
+                        daysText = `Осталось ${days} дн.`;
+                    } else {
+                        daysClass = 'days-left';
+                        daysText = `Осталось ${days} дн.`;
+                    }
+                    const difficultyEmoji = getDifficultyEmoji(h.difficulty);
+                    let attachmentsHtml = '';
+                    if (h.attachments && h.attachments.length > 0) {
+                        attachmentsHtml = `<span class="attachment-count" style="cursor:pointer;" data-id="${h.id}" data-action="viewAttachments"> 📎 ${h.attachments.length}</span>`;
+                    }
+                    html += `
+                        <div class="item-row" data-type="homework" data-id="${h.id}">
+                            <div class="item-info">
+                                <div class="item-title">
+                                    <span class="difficulty-badge">${difficultyEmoji}</span>
+                                    ${escapeHtml(sub.name)}
+                                    ${attachmentsHtml}
+                                </div>
+                                <div>${escapeHtml(h.description)}</div>
+                                ${h.notes ? `<div class="item-sub">📝 ${escapeHtml(h.notes)}</div>` : ''}
+                                <div class="deadline"><span class="${daysClass}">${daysText}</span></div>
+                            </div>
+                            <div class="item-actions">
+                                <button class="small" data-action="editHomework">✏️</button>
+                                <button class="small success" data-action="markDone">✓</button>
+                                <button class="small warning" data-action="deleteHomework">🗑</button>
+                            </div>
+                        </div>
+                    `;
+                });
+                list.innerHTML = html;
+            }
+
+            // ==================== АРХИВ ====================
+            function renderArchive() {
+                const list = document.getElementById('archiveList');
+                const toggleDiv = document.getElementById('archiveToggle');
+                const archive = homeworks.filter(h => h.completed);
+                
+                if (!archive.length) {
+                    list.innerHTML = '<div class="empty-message">Архив пуст</div>';
+                    toggleDiv.innerHTML = '';
+                    return;
+                }
+
+                const sorted = [...archive].sort((a,b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+                
+                let html = '';
+                let displayItems = sorted;
+                
+                if (!archiveExpanded && sorted.length > 3) {
+                    displayItems = sorted.slice(0, 3);
+                }
+                
+                displayItems.forEach(h => {
+                    const sub = subjects.find(s => s.id === h.subjectId) || { name: '?' };
+                    const difficultyEmoji = getDifficultyEmoji(h.difficulty);
+                    html += `
+                        <div class="item-row" data-type="homework" data-id="${h.id}">
+                            <div class="item-info">
+                                <div class="item-title">
+                                    <span class="difficulty-badge">${difficultyEmoji}</span>
+                                    ${escapeHtml(sub.name)}
+                                </div>
+                                <div>${escapeHtml(h.description)}</div>
+                                ${h.notes ? `<div class="item-sub">📝 ${escapeHtml(h.notes)}</div>` : ''}
+                                <div class="item-sub">Выполнено</div>
+                            </div>
+                            <div class="item-actions">
+                                <button class="small" data-action="editHomework">✏️</button>
+                                <button class="small" data-action="markUndone">↩️</button>
+                                <button class="small warning" data-action="deleteHomework">🗑</button>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                list.innerHTML = html;
+                
+                if (sorted.length > 3) {
+                    const hiddenCount = sorted.length - 3;
+                    if (archiveExpanded) {
+                        toggleDiv.innerHTML = '<button class="small" id="collapseArchiveBtn">Свернуть архив</button>';
+                    } else {
+                        toggleDiv.innerHTML = `<button class="small" id="expandArchiveBtn">Показать ещё ${hiddenCount}...</button>`;
+                    }
+                } else {
+                    toggleDiv.innerHTML = '';
+                }
+            }
+
+            // ==================== СТАТИСТИКА ====================
+            function renderStats() {
+                const statsDiv = document.getElementById('statsContent');
+                const total = homeworks.length;
+                const completed = homeworks.filter(h => h.completed).length;
+                const active = total - completed;
+                const overdue = homeworks.filter(h => !h.completed && new Date(h.deadline) < new Date()).length;
+                statsDiv.innerHTML = `
+                    <div class="stat-item"><span class="stat-value">${total}</span><div class="stat-label">Всего</div></div>
+                    <div class="stat-item"><span class="stat-value">${active}</span><div class="stat-label">Активных</div></div>
+                    <div class="stat-item"><span class="stat-value">${completed}</span><div class="stat-label">Выполнено</div></div>
+                    <div class="stat-item"><span class="stat-value">${overdue}</span><div class="stat-label">Просрочено</div></div>
+                `;
+            }
+
+            // ==================== КАЛЕНДАРЬ ====================
+            function renderCalendar() {
+                const year = currentDate.getFullYear();
+                const month = currentDate.getMonth();
+                const monthNames = ['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
+                document.getElementById('currentMonth').textContent = `${monthNames[month]} ${year}`;
+
+                let firstDay = new Date(year, month, 1).getDay();
+                firstDay = firstDay === 0 ? 6 : firstDay - 1;
+
+                const daysInMonth = new Date(year, month + 1, 0).getDate();
+                const prevMonthDays = new Date(year, month, 0).getDate();
+
+                const today = new Date();
+                const todayDateOnly = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+
+                const activeHomeworks = homeworks.filter(h => !h.completed);
+                const futureTaskDates = new Set();
+                const overdueTaskDates = new Set();
+                activeHomeworks.forEach(h => {
+                    const dateStr = `${h.deadline.getFullYear()}-${h.deadline.getMonth()}-${h.deadline.getDate()}`;
+                    if (h.deadline < todayDateOnly) overdueTaskDates.add(dateStr);
+                    else futureTaskDates.add(dateStr);
+                });
+
+                let html = '';
+                for (let i = 0; i < firstDay; i++) {
+                    const day = prevMonthDays - firstDay + i + 1;
+                    html += `<div class="calendar-day other-month"><span class="day-number">${day}</span></div>`;
+                }
+
+                for (let d = 1; d <= daysInMonth; d++) {
+                    const dateStr = `${year}-${month}-${d}`;
+                    const isToday = `${year}-${month}-${d}` === `${today.getFullYear()}-${today.getMonth()}-${today.getDate()}`;
+                    const hasFutureTasks = futureTaskDates.has(dateStr);
+                    const hasOverdueTasks = overdueTaskDates.has(dateStr);
+                    const isSelected = selectedDate && selectedDate.getFullYear() === year && selectedDate.getMonth() === month && selectedDate.getDate() === d;
+                    let classes = 'calendar-day';
+                    if (isToday) classes += ' today';
+                    if (hasFutureTasks) classes += ' has-tasks';
+                    if (hasOverdueTasks) classes += ' has-overdue';
+                    if (isSelected) classes += ' selected';
+                    html += `<div class="${classes}" data-year="${year}" data-month="${month}" data-day="${d}"><span class="day-number">${d}</span></div>`;
+                }
+
+                const totalCells = Math.ceil((firstDay + daysInMonth) / 7) * 7;
+                const nextMonthDays = totalCells - (firstDay + daysInMonth);
+                for (let d = 1; d <= nextMonthDays; d++) {
+                    html += `<div class="calendar-day other-month"><span class="day-number">${d}</span></div>`;
+                }
+
+                document.getElementById('calendarGrid').innerHTML = html;
+
+                document.querySelectorAll('#calendarGrid .calendar-day[data-day]').forEach(day => {
+                    day.addEventListener('click', () => {
+                        const year = parseInt(day.dataset.year);
+                        const month = parseInt(day.dataset.month);
+                        const dayNum = parseInt(day.dataset.day);
+                        selectedDate = new Date(year, month, dayNum);
+                        document.querySelectorAll('#calendarGrid .calendar-day').forEach(d => d.classList.remove('selected'));
+                        day.classList.add('selected');
+                        showTasksForDate(selectedDate);
+                    });
+                });
+
+                if (selectedDate && selectedDate.getMonth() === month && selectedDate.getFullYear() === year) showTasksForDate(selectedDate);
+                else { selectedDate = new Date(); showTasksForDate(selectedDate); }
+            }
+
+            function showTasksForDate(date) {
+                const tasksDiv = document.getElementById('dayTasksList');
+                const dateTitle = document.getElementById('selectedDateTitle');
+                const exportBtn = document.getElementById('exportDayBtn');
+                dateTitle.textContent = `Задания на ${date.toLocaleDateString()}`;
+                const tasksOnDate = homeworks.filter(h => !h.completed && h.deadline.getFullYear() === date.getFullYear() && h.deadline.getMonth() === date.getMonth() && h.deadline.getDate() === date.getDate());
+
+                if (tasksOnDate.length === 0) {
+                    tasksDiv.innerHTML = '<div class="empty-message">Нет заданий на этот день</div>';
+                    exportBtn.style.display = 'none';
+                    return;
+                } else {
+                    exportBtn.style.display = 'inline-block';
+                }
+
+                let html = '';
+                tasksOnDate.sort((a,b) => a.deadline - b.deadline);
+                tasksOnDate.forEach(h => {
+                    const sub = subjects.find(s => s.id === h.subjectId) || { name: '?' };
+                    const difficultyEmoji = getDifficultyEmoji(h.difficulty);
+                    const days = Math.ceil((h.deadline - new Date()) / (1000*60*60*24));
+                    let daysClass = '';
+                    let daysText;
+                    if (days < 0) {
+                        daysClass = 'overdue';
+                        daysText = `Просрочено на ${-days} дн.`;
+                    } else if (days <= 3) {
+                        daysClass = 'days-short';
+                        daysText = `Осталось ${days} дн.`;
+                    } else {
+                        daysClass = 'days-left';
+                        daysText = `Осталось ${days} дн.`;
+                    }
+                    let attachmentsHtml = '';
+                    if (h.attachments && h.attachments.length > 0) {
+                        attachmentsHtml = `<span class="attachment-count" style="cursor:pointer;" data-id="${h.id}" data-action="viewAttachments"> 📎 ${h.attachments.length}</span>`;
+                    }
+                    html += `
+                        <div class="item-row" data-type="homework" data-id="${h.id}">
+                            <div class="item-info">
+                                <div class="item-title">
+                                    <span class="difficulty-badge">${difficultyEmoji}</span>
+                                    ${escapeHtml(sub.name)}
+                                    ${attachmentsHtml}
+                                </div>
+                                <div>${escapeHtml(h.description)}</div>
+                                ${h.notes ? `<div class="item-sub">📝 ${escapeHtml(h.notes)}</div>` : ''}
+                                <div class="deadline"><span class="${daysClass}">${daysText}</span></div>
+                            </div>
+                            <div class="item-actions">
+                                <button class="small" data-action="editHomework">✏️</button>
+                                <button class="small success" data-action="markDone">✓</button>
+                                <button class="small warning" data-action="deleteHomework">🗑</button>
+                            </div>
+                        </div>
+                    `;
+                });
+                tasksDiv.innerHTML = html;
+            }
+
+            function exportDayTasks() {
+                if (!selectedDate) return;
+                const tasksOnDate = homeworks.filter(h => !h.completed && h.deadline.getFullYear() === selectedDate.getFullYear() && h.deadline.getMonth() === selectedDate.getMonth() && h.deadline.getDate() === selectedDate.getDate());
+                if (tasksOnDate.length === 0) {
+                    showAlert('Нет заданий на этот день');
+                    return;
+                }
+                let content = `Задания на ${selectedDate.toLocaleDateString()}\n\n`;
+                tasksOnDate.forEach(h => {
+                    const sub = subjects.find(s => s.id === h.subjectId) || { name: '?' };
+                    content += `Предмет: ${sub.name}\n`;
+                    content += `Задание: ${h.description}\n`;
+                    content += `Дедлайн: ${h.deadline.toLocaleDateString()}\n`;
+                    content += `Сложность: ${h.difficulty === 'easy' ? '😊' : h.difficulty === 'hard' ? '😓' : '😐'}\n`;
+                    if (h.notes) content += `Заметки: ${h.notes}\n`;
+                    content += '------------------------\n';
+                });
+                const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `tasks_${selectedDate.toISOString().slice(0,10)}.txt`;
+                a.click();
+                URL.revokeObjectURL(url);
+            }
+
+            // ==================== ПРОСМОТР ФАЙЛОВ ====================
+            function viewAttachments(homeworkId) {
+                const hw = homeworks.find(h => h.id === homeworkId);
+                if (!hw || !hw.attachments || hw.attachments.length === 0) return;
+                const modal = document.getElementById('fileViewerModal');
+                const content = document.getElementById('fileViewerContent');
+                const title = document.getElementById('fileViewerTitle');
+                title.textContent = `Файлы задания (${hw.attachments.length})`;
+                let html = '';
+                hw.attachments.forEach((file, index) => {
+                    const icon = getFileIcon(file.type, file.name);
+                    const isImage = file.type.startsWith('image/');
+                    if (isImage) {
+                        html += `<div class="file-attachment" style="cursor:pointer;" data-index="${index}" data-action="viewImage"><img class="attachment-thumb" src="${file.data}" alt="preview" style="width: 40px; height: 40px;"><span class="attachment-name">${escapeHtml(file.name)}</span><span style="margin-left: auto;">🔍</span></div>`;
+                    } else {
+                        html += `<div class="file-attachment"><span class="attachment-icon">${icon}</span><span class="attachment-name">${escapeHtml(file.name)}</span><a href="${file.data}" download="${file.name}" style="margin-left: auto; text-decoration: none;">⬇️</a></div>`;
+                    }
+                });
+                content.innerHTML = html;
+                content.querySelectorAll('[data-action="viewImage"]').forEach(el => {
+                    el.addEventListener('click', (e) => {
+                        const index = e.currentTarget.dataset.index;
+                        const file = hw.attachments[index];
+                        if (file && file.type.startsWith('image/')) {
+                            document.getElementById('fullImage').src = file.data;
+                            document.getElementById('imageViewerModal').style.display = 'flex';
+                        }
+                    });
+                });
+                modal.style.display = 'flex';
+            }
+
+            // ==================== ДЕЙСТВИЯ ====================
+            function openAddHomework() {
+                if (!subjects.length) { showAlert('Сначала добавьте предмет'); return; }
+                document.getElementById('homeworkId').value = '';
+                document.getElementById('homeworkDesc').value = '';
+                document.getElementById('homeworkNotes').value = '';
+                clearTempFiles();
+                if (currentView === 'calendar' && selectedDate) {
+                    const year = selectedDate.getFullYear();
+                    const month = String(selectedDate.getMonth() + 1).padStart(2, '0');
+                    const day = String(selectedDate.getDate()).padStart(2, '0');
+                    document.getElementById('homeworkDeadline').value = `${year}-${month}-${day}`;
+                } else {
+                    const today = new Date();
+                    const year = today.getFullYear();
+                    const month = String(today.getMonth() + 1).padStart(2, '0');
+                    const day = String(today.getDate()).padStart(2, '0');
+                    document.getElementById('homeworkDeadline').value = `${year}-${month}-${day}`;
+                }
+                document.getElementById('homeworkModalTitle').innerText = 'Новое задание';
+                document.querySelectorAll('#homeworkModal .difficulty-btn').forEach(btn => {
+                    btn.classList.remove('selected');
+                    if (btn.dataset.difficulty === 'medium') btn.classList.add('selected');
+                });
+                document.getElementById('homeworkDifficulty').value = 'medium';
+                updateHomeworkSubjectSelect();
+                document.getElementById('homeworkModal').style.display = 'flex';
+            }
+
+            function saveHomework() {
+                const id = document.getElementById('homeworkId').value;
+                const subjectId = parseInt(document.getElementById('homeworkSubject').value);
+                const desc = document.getElementById('homeworkDesc').value.trim();
+                const notes = document.getElementById('homeworkNotes').value.trim();
+                const difficulty = document.getElementById('homeworkDifficulty').value;
+                const deadlineStr = document.getElementById('homeworkDeadline').value;
+                if (!subjectId || !desc || !deadlineStr) { showAlert('Заполните все поля'); return; }
+                const deadline = new Date(deadlineStr + 'T00:00:00');
+                if (id) {
+                    const hw = homeworks.find(h => h.id == id);
+                    if (hw) {
+                        hw.subjectId = subjectId;
+                        hw.description = desc;
+                        hw.notes = notes;
+                        hw.difficulty = difficulty;
+                        hw.deadline = deadline;
+                        hw.attachments = [...tempAttachments];
+                    }
+                } else {
+                    const newId = nextHomeworkId++;
+                    homeworks.push({ id: newId, subjectId, description: desc, notes, difficulty, deadline, completed: false, createdAt: new Date(), attachments: [...tempAttachments] });
+                }
+                saveData();
+                renderAll();
+                closeHomeworkModal();
+            }
+
+            function editHomework(id) {
+                const hw = homeworks.find(h => h.id === id);
+                if (!hw) return;
+                document.getElementById('homeworkId').value = hw.id;
+                updateHomeworkSubjectSelect();
+                document.getElementById('homeworkSubject').value = hw.subjectId;
+                document.getElementById('homeworkDesc').value = hw.description;
+                document.getElementById('homeworkNotes').value = hw.notes || '';
+                const year = hw.deadline.getFullYear();
+                const month = String(hw.deadline.getMonth() + 1).padStart(2, '0');
+                const day = String(hw.deadline.getDate()).padStart(2, '0');
+                document.getElementById('homeworkDeadline').value = `${year}-${month}-${day}`;
+                document.getElementById('homeworkModalTitle').innerText = 'Редактировать задание';
+                document.querySelectorAll('#homeworkModal .difficulty-btn').forEach(btn => {
+                    btn.classList.remove('selected');
+                    if (btn.dataset.difficulty === hw.difficulty) btn.classList.add('selected');
+                });
+                document.getElementById('homeworkDifficulty').value = hw.difficulty || 'medium';
+                tempAttachments = hw.attachments ? [...hw.attachments] : [];
+                renderTempFileList();
+                document.getElementById('homeworkModal').style.display = 'flex';
+            }
+
+            function markDone(id) {
+                const hw = homeworks.find(h => h.id === id);
+                if (hw) { hw.completed = true; hw.attachments = []; saveData(); renderAll(); }
+            }
+
+            function markUndone(id) {
+                const hw = homeworks.find(h => h.id === id);
+                if (hw) { hw.completed = false; saveData(); renderAll(); }
+            }
+
+            function deleteHomework(id) {
+                const hw = homeworks.find(h => h.id === id);
+                if (!hw) return;
+                showConfirm(`Удалить задание "${hw.description}"?`).then(ok => {
+                    if (!ok) return;
+                    homeworks = homeworks.filter(h => h.id !== id);
+                    saveData();
+                    renderAll();
+                });
+            }
+
+            function closeHomeworkModal() { document.getElementById('homeworkModal').style.display = 'none'; clearTempFiles(); }
+
+            function setupViewToggle() {
+                const listBtn = document.getElementById('showListView');
+                const calBtn = document.getElementById('showCalendarView');
+                const listView = document.getElementById('listView');
+                const calView = document.getElementById('calendarView');
+                listBtn.addEventListener('click', () => {
+                    if (currentView === 'list') return;
+                    currentView = 'list';
+                    listBtn.classList.add('active');
+                    calBtn.classList.remove('active');
+                    listView.style.display = 'block';
+                    calView.style.display = 'none';
+                });
+                calBtn.addEventListener('click', () => {
+                    if (currentView === 'calendar') return;
+                    currentView = 'calendar';
+                    calBtn.classList.add('active');
+                    listBtn.classList.remove('active');
+                    listView.style.display = 'none';
+                    calView.style.display = 'block';
+                    renderCalendar();
+                });
+            }
+
+            function setupAvatarHandlers() {
+                // редактирование
+                document.querySelectorAll('#teacherModal .avatar-option-btn').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        const type = btn.dataset.avatarType;
+                        selectedAvatarType = type;
+                        document.querySelectorAll('#teacherModal .avatar-option-btn').forEach(b => b.classList.remove('active'));
+                        btn.classList.add('active');
+                        document.getElementById('emojiSelector').style.display = type === 'emoji' ? 'block' : 'none';
+                        document.getElementById('imageUploader').style.display = type === 'image' ? 'block' : 'none';
+                        if (type === 'none') { selectedEmoji = ''; selectedImageData = ''; }
+                        updateAvatarPreview();
+                    });
+                });
+                document.querySelectorAll('#teacherModal .emoji-btn').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        selectedEmoji = btn.textContent;
+                        document.querySelectorAll('#teacherModal .emoji-btn').forEach(b => b.classList.remove('selected'));
+                        btn.classList.add('selected');
+                        updateAvatarPreview();
+                    });
+                });
+                document.getElementById('chooseImageBtn').addEventListener('click', () => document.getElementById('teacherAvatarFile').click());
+                document.getElementById('teacherAvatarFile').addEventListener('change', (e) => {
+                    const file = e.target.files[0];
+                    if (file) {
+                        const reader = new FileReader();
+                        reader.onload = (event) => { selectedImageData = event.target.result; updateAvatarPreview(); };
+                        reader.readAsDataURL(file);
+                    }
+                });
+
+                // создание
+                document.querySelectorAll('#addTeacherModal .avatar-option-btn').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        const type = btn.dataset.avatarType;
+                        newSelectedAvatarType = type;
+                        document.querySelectorAll('#addTeacherModal .avatar-option-btn').forEach(b => b.classList.remove('active'));
+                        btn.classList.add('active');
+                        document.getElementById('newEmojiSelector').style.display = type === 'emoji' ? 'block' : 'none';
+                        document.getElementById('newImageUploader').style.display = type === 'image' ? 'block' : 'none';
+                        if (type === 'none') { newSelectedEmoji = ''; newSelectedImageData = ''; }
+                        updateNewAvatarPreview();
+                    });
+                });
+                document.querySelectorAll('#addTeacherModal .emoji-btn').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        newSelectedEmoji = btn.textContent;
+                        document.querySelectorAll('#addTeacherModal .emoji-btn').forEach(b => b.classList.remove('selected'));
+                        btn.classList.add('selected');
+                        updateNewAvatarPreview();
+                    });
+                });
+                document.getElementById('newChooseImageBtn').addEventListener('click', () => document.getElementById('newTeacherAvatarFile').click());
+                document.getElementById('newTeacherAvatarFile').addEventListener('change', (e) => {
+                    const file = e.target.files[0];
+                    if (file) {
+                        const reader = new FileReader();
+                        reader.onload = (event) => { newSelectedImageData = event.target.result; updateNewAvatarPreview(); };
+                        reader.readAsDataURL(file);
+                    }
+                });
+            }
+
+            function updateNewAvatarPreview() {
+                const previewDiv = document.getElementById('newAvatarPreview');
+                const previewEmoji = document.getElementById('newPreviewEmoji');
+                const previewImage = document.getElementById('newPreviewImage');
+                const previewText = document.getElementById('newPreviewText');
+                if (newSelectedAvatarType === 'emoji' && newSelectedEmoji) {
+                    previewDiv.style.display = 'flex';
+                    previewEmoji.style.display = 'flex';
+                    previewEmoji.textContent = newSelectedEmoji;
+                    previewImage.style.display = 'none';
+                    previewText.textContent = 'Эмодзи выбрано';
+                } else if (newSelectedAvatarType === 'image' && newSelectedImageData) {
+                    previewDiv.style.display = 'flex';
+                    previewEmoji.style.display = 'none';
+                    previewImage.style.display = 'block';
+                    previewImage.src = newSelectedImageData;
+                    previewText.textContent = 'Фото выбрано';
+                } else previewDiv.style.display = 'none';
+            }
+
+            function setupAccordion() {
+                document.querySelectorAll('.accordion-header').forEach(header => {
+                    header.addEventListener('click', () => {
+                        const item = header.closest('.accordion-item');
+                        if (item) {
+                            item.classList.toggle('open');
+                        }
+                    });
+                });
+            }
+
+            function setupDifficultySelection() {
+                document.querySelectorAll('#homeworkModal .difficulty-btn').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        document.querySelectorAll('#homeworkModal .difficulty-btn').forEach(b => b.classList.remove('selected'));
+                        btn.classList.add('selected');
+                        document.getElementById('homeworkDifficulty').value = btn.dataset.difficulty;
+                    });
+                });
+            }
+
+            function updateHomeworkSubjectSelect() {
+                const select = document.getElementById('homeworkSubject');
+                select.innerHTML = '<option value="">Выберите предмет</option>';
+                subjects.forEach(s => select.innerHTML += `<option value="${s.id}">${escapeHtml(s.name)}</option>`);
+            }
+
+            function handleItemRowClick(e, listType) {
+                const row = e.target.closest('.item-row');
+                if (!row) return;
+                const id = parseInt(row.dataset.id);
+                if (!id) return;
+                if (e.target.closest('button') || e.target.closest('[data-action]')) return;
+                if (listType === 'active' || listType === 'day') {
+                    editHomework(id);
+                } else if (listType === 'archive') {
+                    editHomework(id);
+                }
+            }
+
+            function setupEventDelegation() {
+                document.querySelectorAll('.nav-item').forEach(btn => {
+                    btn.addEventListener('click', (e) => switchTab(btn.dataset.tab));
+                });
+
+                // Сворачивание навигации
+                const bottomNav = document.getElementById('bottomNav');
+                const expandBtn = document.getElementById('navExpandBtn');
+                expandBtn.addEventListener('click', () => {
+                    navCollapsed = false;
+                    bottomNav.classList.remove('collapsed');
+                    expandBtn.classList.remove('visible');
+                });
+
+                bottomNav.addEventListener('click', (e) => {
+                    if (e.target.closest('.nav-item')) return; // не сворачиваем при клике на пункт меню
+                    navCollapsed = true;
+                    bottomNav.classList.add('collapsed');
+                    expandBtn.classList.add('visible');
+                });
+
+                document.getElementById('addSubjectBtn').addEventListener('click', openAddSubject);
+                document.getElementById('addHomeworkBtn').addEventListener('click', openAddHomework);
+                document.getElementById('addTeacherBtn').addEventListener('click', openAddTeacher);
+
+                document.querySelector('.file-upload-btn').addEventListener('click', (e) => {
+                    e.preventDefault();
+                    document.getElementById('homeworkFiles').click();
+                });
+                document.getElementById('homeworkFiles').addEventListener('change', (e) => {
+                    handleFileSelect(e.target.files);
+                    e.target.value = '';
+                });
+
+                document.getElementById('subjectsList').addEventListener('click', (e) => {
+                    const button = e.target.closest('button');
+                    if (button) {
+                        const row = button.closest('[data-id]');
+                        if (!row) return;
+                        const id = parseInt(row.dataset.id);
+                        const action = button.dataset.action;
+                        if (action === 'editSubject') editSubject(id);
+                        else if (action === 'deleteSubject') deleteSubject(id);
+                    } else {
+                        const row = e.target.closest('.item-row');
+                        if (row) {
+                            const id = parseInt(row.dataset.id);
+                            if (id) editSubject(id);
+                        }
+                    }
+                });
+
+                document.getElementById('activeList').addEventListener('click', (e) => {
+                    const target = e.target.closest('[data-action]');
+                    if (target) {
+                        const action = target.dataset.action;
+                        const row = target.closest('[data-id]');
+                        if (!row) return;
+                        const id = parseInt(row.dataset.id);
+                        if (action === 'editHomework') editHomework(id);
+                        else if (action === 'markDone') markDone(id);
+                        else if (action === 'deleteHomework') deleteHomework(id);
+                        else if (action === 'viewAttachments') viewAttachments(id);
+                    } else {
+                        handleItemRowClick(e, 'active');
+                    }
+                });
+
+                document.getElementById('archiveList').addEventListener('click', (e) => {
+                    const target = e.target.closest('[data-action]');
+                    if (target) {
+                        const action = target.dataset.action;
+                        const row = target.closest('[data-id]');
+                        if (!row) return;
+                        const id = parseInt(row.dataset.id);
+                        if (action === 'editHomework') editHomework(id);
+                        else if (action === 'markUndone') markUndone(id);
+                        else if (action === 'deleteHomework') deleteHomework(id);
+                    } else {
+                        handleItemRowClick(e, 'archive');
+                    }
+                });
+
+                document.getElementById('dayTasksList').addEventListener('click', (e) => {
+                    const target = e.target.closest('[data-action]');
+                    if (target) {
+                        const action = target.dataset.action;
+                        const row = target.closest('[data-id]');
+                        if (!row) return;
+                        const id = parseInt(row.dataset.id);
+                        if (action === 'editHomework') editHomework(id);
+                        else if (action === 'markDone') markDone(id);
+                        else if (action === 'deleteHomework') deleteHomework(id);
+                        else if (action === 'viewAttachments') viewAttachments(id);
+                    } else {
+                        handleItemRowClick(e, 'day');
+                    }
+                });
+
+                document.getElementById('teachersList').addEventListener('click', (e) => {
+                    const button = e.target.closest('button');
+                    if (button) {
+                        const teacher = button.closest('.teacher-item')?.dataset.teacher;
+                        if (!teacher) return;
+                        const action = button.dataset.action;
+                        if (action === 'editTeacher') editTeacher(teacher);
+                        else if (action === 'deleteTeacher') deleteTeacher(teacher);
+                    } else {
+                        const teacherItem = e.target.closest('.teacher-item');
+                        if (teacherItem) {
+                            const teacher = teacherItem.dataset.teacher;
+                            if (teacher) editTeacher(teacher);
+                        }
+                    }
+                });
+
+                document.addEventListener('click', (e) => {
+                    if (e.target.id === 'expandArchiveBtn') { archiveExpanded = true; renderArchive(); }
+                    else if (e.target.id === 'collapseArchiveBtn') { archiveExpanded = false; renderArchive(); }
+                });
+
+                document.getElementById('subjectForm').addEventListener('submit', (e) => { e.preventDefault(); saveSubject(); });
+                document.getElementById('homeworkForm').addEventListener('submit', (e) => { e.preventDefault(); saveHomework(); });
+                document.getElementById('teacherForm').addEventListener('submit', (e) => { e.preventDefault(); saveTeacher(); });
+                document.getElementById('addTeacherForm').addEventListener('submit', (e) => { e.preventDefault(); saveNewTeacher(); });
+                document.getElementById('teacherNoteForm').addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    const teacherName = document.getElementById('teacherNoteName').value.trim();
+                    const note = document.getElementById('teacherNoteText').value.trim();
+                    if (teacherName) {
+                        if (!teacherData[teacherName]) teacherData[teacherName] = { note: '', avatarType: 'none', avatarData: '', tags: [] };
+                        teacherData[teacherName].note = note;
+                        saveData();
+                        renderAll();
+                    }
+                    closeTeacherNoteModal();
+                });
+
+                document.querySelectorAll('.close-modal').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        closeSubjectModal();
+                        closeHomeworkModal();
+                        closeTeacherModal();
+                        closeAddTeacherModal();
+                        document.getElementById('teacherNoteModal').style.display = 'none';
+                        document.getElementById('fileViewerModal').style.display = 'none';
+                        document.getElementById('imageViewerModal').style.display = 'none';
+                    });
+                });
+
+                window.addEventListener('click', (e) => {
+                    if (e.target.classList.contains('modal-overlay')) {
+                        closeSubjectModal();
+                        closeHomeworkModal();
+                        closeTeacherModal();
+                        closeAddTeacherModal();
+                        document.getElementById('teacherNoteModal').style.display = 'none';
+                        document.getElementById('fileViewerModal').style.display = 'none';
+                        document.getElementById('imageViewerModal').style.display = 'none';
+                        document.getElementById('messageModal').style.display = 'none';
+                    }
+                });
+
+                document.getElementById('exportBtn').addEventListener('click', exportData);
+                document.getElementById('backupFile').addEventListener('change', (e) => {
+                    if (e.target.files.length > 0) importData(e.target.files[0]);
+                    e.target.value = '';
+                });
+
+                document.getElementById('clearCacheBtn').addEventListener('click', () => {
+                    showConfirm('Вы действительно хотите безвозвратно удалить все данные? Приложение вернётся к начальному состоянию.').then(ok => {
+                        if (ok) {
+                            localStorage.removeItem('hw_planner');
+                            localStorage.removeItem('hw_theme');
+                            location.reload();
+                        }
+                    });
+                });
+
+                document.getElementById('prevMonth').addEventListener('click', () => {
+                    currentDate.setMonth(currentDate.getMonth() - 1);
+                    renderCalendar();
+                });
+                document.getElementById('nextMonth').addEventListener('click', () => {
+                    currentDate.setMonth(currentDate.getMonth() + 1);
+                    renderCalendar();
+                });
+
+                document.getElementById('exportDayBtn').addEventListener('click', exportDayTasks);
+
+                setupViewToggle();
+                setupAvatarHandlers();
+                setupAccordion();
+            }
+
+            function renderAll() {
+                renderSubjects();
+                renderActive();
+                renderArchive();
+                renderStats();
+                renderTeachers();
+                renderCalendar();
+                updateHomeworkSubjectSelect();
+            }
+
+            document.addEventListener('DOMContentLoaded', () => {
+                loadData();
+                loadThemeSettings();
+                renderAll();
+                setupDifficultySelection();
+                setupSubjectDifficulty();
+                setupEventDelegation();
+                setupThemeControls();
+            });
+        })();
+    </script>
+</body>
+</html>
